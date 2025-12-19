@@ -2407,6 +2407,13 @@ function redzlib:MakeWindow(Configs)
 			end
 			return Dropdown
 		end
+
+		function Tab:AddMultiDropdown(Configs)
+	        Configs = Configs or {}
+	        Configs.MultiSelect = true
+	        return self:AddDropdown(Configs)
+        end
+		
 		function Tab:AddSlider(Configs)
 			local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
 			local SDesc = Configs.Desc or Configs.Description or ""
