@@ -2000,8 +2000,14 @@ function redzlib:MakeWindow(Configs)
 				Size = UDim2.new(0, 35, 0, 18),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
+				BackgroundColor3 = Theme["Color Hub 2"]
 			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+
+            -- 🔴 STROKE DO TOGGLE (AQUI)
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Parent = ToggleHolder
+            Stroke.Thickness = 1.5
+            Stroke.Color = Theme["Color Stroke"]
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2014,53 +2020,76 @@ function redzlib:MakeWindow(Configs)
 				Size = UDim2.new(0, 12, 0, 12),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Theme["Color Theme"]
+				BackgroundColor3 = Theme["Color Stroke"]
 			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
 			
 			local WaitClick
-			local function SetToggle(Val)
-				if WaitClick then return end
-				
-				WaitClick, Default = true, Val
-				SetFlag(Flag, Default)
-				Funcs:FireCallback(Callback, Default)
-				if Default then
-					CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
-					CreateTween({Toggle, "BackgroundTransparency", 0, 0.25})
-					CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25, Wait or false})
-				else
-					CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
-					CreateTween({Toggle, "BackgroundTransparency", 0.8, 0.25})
-					CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25, Wait or false})
-				end
-				WaitClick = false
-			end;task.spawn(SetToggle, Default)
-			
-			Button.Activated:Connect(function()
-				SetToggle(not Default)
-			end)
-			
-			local Toggle = {}
-			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function Toggle:Destroy() Button:Destroy() end
-			function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
-			function Toggle:Set(Val1, Val2)
-				if type(Val1) == "string" and type(Val2) == "string" then
-					LabelFunc:SetTitle(Val1)
-					LabelFunc:SetDesc(Val2)
-				elseif type(Val1) == "string" then
-					LabelFunc:SetTitle(Val1, false, true)
-				elseif type(Val1) == "boolean" then
-					if WaitClick and Val2 then
-						repeat task.wait() until not WaitClick
-					end
-					task.spawn(SetToggle, Val1)
-				elseif type(Val1) == "function" then
-					Callback = Val1
-				end
-			end
-			return Toggle
-		end
+			local function SetToggle(Value)
+		        if WaitClick then return end
+		        WaitClick = true
+
+		        Default = Value
+		        SetFlag(Flag, Default)
+		        Funcs:FireCallback(Callback, Default)
+
+		        if Default then
+			        -- LIGADO
+		            Stroke.Color = Theme["Color Stroke"]
+			        CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(60, 200, 90), 0.25})
+			        CreateTween({ToggleBall, "Position", UDim2.new(1, 0, 0.5), 0.25})
+			        CreateTween({ToggleBall, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
+		        else
+		 	        -- DESLIGADO
+			        Stroke.Color = Color3.fromRGB(220, 40, 40)
+			        CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.25})
+			        CreateTween({ToggleBall, "Position", UDim2.new(0, 0, 0.5), 0.25})
+			        CreateTween({ToggleBall, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
+		        end
+
+		        task.delay(0.25, function()
+			        WaitClick = false
+		        end)
+	        end
+
+	        task.spawn(SetToggle, Default)
+
+	        Button.Activated:Connect(function()
+		        SetToggle(not Default)
+	        end)
+
+	         -- API PÚBLICA
+	        local Toggle = {}
+
+	        function Toggle:Visible(...)
+		        Funcs:ToggleVisible(Button, ...)
+	        end
+
+	        function Toggle:Destroy()
+		        Button:Destroy()
+	        end
+
+	        function Toggle:Callback(...)
+		        Funcs:InsertCallback(Callback, ...)()
+	        end
+
+	        function Toggle:Set(Val1, Val2)
+		        if type(Val1) == "string" and type(Val2) == "string" then
+			        LabelFunc:SetTitle(Val1)
+			        LabelFunc:SetDesc(Val2)
+		        elseif type(Val1) == "string" then
+			        LabelFunc:SetTitle(Val1, false, true)
+		        elseif type(Val1) == "boolean" then
+			        if WaitClick and Val2 then
+				        repeat task.wait() until not WaitClick
+			        end
+			        task.spawn(SetToggle, Val1)
+		        elseif type(Val1) == "function" then
+			        Callback = Val1
+		        end
+	        end
+
+	        return Toggle 
+        end
 		function Tab:AddDropdown(Configs)
 			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
 			local DDesc = Configs.Desc or Configs.Description or ""
