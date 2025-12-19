@@ -2360,12 +2360,12 @@ function redzlib:MakeWindow(Configs)
 			local Dropdown = {}
 			function Dropdown:Visible(...) Funcs:ToggleVisible(Button, ...) end
 			function Dropdown:Destroy() Button:Destroy() end
-			function Dropdown:Callback(...) Funcs:InsertCallback(Callback, ...)(Selected) end
+			function Dropdown:Callback() CallbackSelected() end
 			
 			function Dropdown:Add(...)
 				local NewOptions = {...}
 				if type(NewOptions[1]) == "table" then
-					table.foreach(NewOption[1], function(_, Name)
+					table.foreach(NewOptions[1], function(_, Name)
 						AddOption(Name)
 					end)
 				else
@@ -2385,9 +2385,9 @@ function redzlib:MakeWindow(Configs)
 			end
 			function Dropdown:Select(Option)
 				if type(Option) == "string" then
-					for _,Val in pairs(Options) do
+					for _,Val in pairs(GetOptions()) do
 						if Val.Name == Option then
-							Val.Active()
+							Select(Val)
 						end
 					end
 				elseif type(Option) == "number" then
@@ -2395,7 +2395,7 @@ function redzlib:MakeWindow(Configs)
 						if ind == Option then
 							Select(Val)
 						end
-					end
+					end	
 				end
 			end
 			function Dropdown:Set(Val1, Clear)
