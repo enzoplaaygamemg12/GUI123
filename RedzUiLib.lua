@@ -12,25 +12,25 @@ local redzlib = {
 	Themes = {
 		Darker = {
         ["Color Hub 1"] = ColorSequence.new({
-            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
-            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32, 32, 32)),
-            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(18, 18, 18)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
        }),
 
        -- Fundo das tabs / dropdowns (PRETO)
-       ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
+       ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),
 
        -- Stroke / outline (escuro ou vermelho depois se quiser)
        ["Color Stroke"] = Color3.fromRGB(40, 40, 40),
 
        -- Cor da bolinha do switch (knob)
-       ["Color Theme"] = Color3.fromRGB(88, 101, 242),
+       ["Color Text"] = Color3.fromRGB(240, 240, 240),
 
        -- Texto principal
-       ["Color Text"] = Color3.fromRGB(243, 243, 243),
+       ["Color Text"] = Color3.fromRGB(240, 240, 240),
 
        -- Texto secundário
-       ["Color Dark Text"] = Color3.fromRGB(180, 180, 180)
+       ["Color Dark Text"] = Color3.fromRGB(170, 170, 170)
     },
 		Dark = {
 			["Color Hub 1"] = ColorSequence.new({
