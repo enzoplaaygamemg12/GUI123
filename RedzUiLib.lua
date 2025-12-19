@@ -1996,18 +1996,19 @@ function redzlib:MakeWindow(Configs)
 			
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
 			
-			local ToggleHolder = InsertTheme(Create("Frame", Button, {
+			local ToggleHolder = Create("Frame", Button, {
 				Size = UDim2.new(0, 35, 0, 18),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+			}), "Stroke")
+			Make("Corner", ToggleHolder, UDim.new(0.5, 0))
 
             -- 🔴 STROKE DO TOGGLE (AQUI)
+            -- STROKE
             local Stroke = Instance.new("UIStroke")
-            Stroke.Parent = ToggleHolder
             Stroke.Thickness = 1.5
-            Stroke.Color = Theme["Color Stroke"]
+            Stroke.Parent = ToggleHolder
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2016,14 +2017,16 @@ function redzlib:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(0.5, 0.5)
 			})
 			
-			local Toggle = InsertTheme(Create("Frame", Slider, {
+			local ToggleBall = Create("Frame", Slider, {
 				Size = UDim2.new(0, 12, 0, 12),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
+				BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+			}), 
+			Make("Corner", Toggle, UDim.new(0.5, 0))
 			
-			local WaitClick
+			local WaitClick = false
+			
 			local function SetToggle(Value)
 	            if WaitClick then return end
 	            WaitClick = true
@@ -2086,21 +2089,13 @@ function redzlib:MakeWindow(Configs)
 		        Funcs:InsertCallback(Callback, ...)()
 	        end
 
-	        function Toggle:Set(Val1, Val2)
-		        if type(Val1) == "string" and type(Val2) == "string" then
-			        LabelFunc:SetTitle(Val1)
-			        LabelFunc:SetDesc(Val2)
-		        elseif type(Val1) == "string" then
-			        LabelFunc:SetTitle(Val1, false, true)
-		        elseif type(Val1) == "boolean" then
-			        if WaitClick and Val2 then
-				        repeat task.wait() until not WaitClick
-			        end
-			        task.spawn(SetToggle, Val1)
-		        elseif type(Val1) == "function" then
-			        Callback = Val1
-		        end
-	        end
+	        function Toggle:Set(Value)
+	            if type(Value) == "boolean" then
+		            task.spawn(SetToggle, Value)
+	            elseif type(Value) == "function" then
+		            Callback = Value
+	            end
+            end
 
 	        return Toggle 
         end
