@@ -2025,31 +2025,45 @@ function redzlib:MakeWindow(Configs)
 			
 			local WaitClick
 			local function SetToggle(Value)
-		        if WaitClick then return end
-		        WaitClick = true
+	            if WaitClick then return end
+	            WaitClick = true
 
-		        Default = Value
-		        SetFlag(Flag, Default)
-		        Funcs:FireCallback(Callback, Default)
+	            Default = Value
+	            SetFlag(Flag, Default)
+	            Funcs:FireCallback(Callback, Default)
 
-		        if Default then
-			        -- LIGADO
+	            if Default then
+		            -- LIGADO
 		            Stroke.Color = Theme["Color Stroke"]
-			        CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(60, 200, 90), 0.25})
-			        CreateTween({ToggleBall, "Position", UDim2.new(1, 0, 0.5), 0.25})
-			        CreateTween({ToggleBall, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
-		        else
-		 	        -- DESLIGADO
-			        Stroke.Color = Color3.fromRGB(220, 40, 40)
-			        CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.25})
-			        CreateTween({ToggleBall, "Position", UDim2.new(0, 0, 0.5), 0.25})
-			        CreateTween({ToggleBall, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
-		        end
+		            ToggleBall.BackgroundColor3 = Color3.fromRGB(60, 200, 90)
 
-		        task.delay(0.25, function()
-			        WaitClick = false
-		        end)
-	        end
+		            CreateTween({
+			            ToggleBall,
+			            "Position",
+			            UDim2.new(1, 0, 0.5),
+			            0.25,
+			            true
+		            })
+
+		            ToggleBall.AnchorPoint = Vector2.new(1, 0.5)
+	            else
+		            -- DESLIGADO
+		            Stroke.Color = Color3.fromRGB(220, 40, 40)
+		            ToggleBall.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+
+		            CreateTween({
+			            ToggleBall,
+			            "Position",
+			            UDim2.new(0, 0, 0.5),
+			            0.25,
+			            true
+		            })
+
+		            ToggleBall.AnchorPoint = Vector2.new(0, 0.5)
+	            end
+
+	            WaitClick = false
+            end
 
 	        task.spawn(SetToggle, Default)
 
