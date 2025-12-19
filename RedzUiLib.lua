@@ -2086,8 +2086,11 @@ function redzlib:MakeWindow(Configs)
 	        end
 
 	        function Toggle:Callback(...)
-		        Funcs:InsertCallback(Callback, ...)()
-	        end
+	            local fn = Funcs:InsertCallback(Callback, ...)
+	            if type(fn) == "function" then
+		            fn()
+	            end
+            end
 
 	        function Toggle:Set(Value)
 	            if type(Value) == "boolean" then
