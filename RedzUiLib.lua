@@ -1987,11 +1987,11 @@ function redzlib:MakeWindow(Configs)
 			return Button
 		end
 		function Tab:AddToggle(Configs)
-			local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
-			local TDesc = Configs.Desc or Configs.Description or ""
-			local Callback = Funcs:GetCallback(Configs, 3)
-			local Flag = Configs[4] or Configs.Flag or false
-			local Default = Configs[2] or Configs.Default or false
+			local TName = Configs[1] or "Toggle"
+			local TDesc = Configs.Desc or ""
+			local Callback = Funcs:GetCallback(Configs, 3)                           
+			local Flag = Configs.Flag
+			local Default = Configs[2] or false
 			if CheckFlag(Flag) then Default = GetFlag(Flag) end
 			
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
@@ -2001,14 +2001,12 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Stroke")
+			})
 			Make("Corner", ToggleHolder, UDim.new(0.5, 0))
 
-            -- 🔴 STROKE DO TOGGLE (AQUI)
-            -- STROKE
-            local Stroke = Instance.new("UIStroke")
+            -- Stroke manual
+            local Stroke = Instance.new("UIStroke", ToggleHolder)
             Stroke.Thickness = 1.5
-            Stroke.Parent = ToggleHolder
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2022,85 +2020,71 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = Color3.fromRGB(220, 40, 40)
-			}), 
+			})
 			Make("Corner", Toggle, UDim.new(0.5, 0))
 			
-			local WaitClick = false
+			local Busy = false
 			
-			local function SetToggle(Value)
-	            if WaitClick then return end
-	            WaitClick = true
+			local function SetToggle(state)
+                if Busy then return end
+                Busy = true
+                Default = state
+                SetFlag(Flag, state)
+                Funcs:FireCallback(Callback, state)
 
-	            Default = Value
-	            SetFlag(Flag, Default)
-	            Funcs:FireCallback(Callback, Default)
+                if state then
+                    Stroke.Color = Theme["Color Stroke"]
+                    CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(40, 200, 40), 0.2})
+                    CreateTween({ToggleBall, "Position", UDim2.new(1, 0, 0.5), 0.25})
+                    CreateTween({ToggleBall, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
+                else
+                    Stroke.Color = Theme["Color Stroke"]
+                    CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.2})
+                    CreateTween({ToggleBall, "Position", UDim2.new(0, 0, 0.5), 0.25})
+                    CreateTween({ToggleBall, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
+                end
 
-	            if Default then
-		            -- LIGADO
-		            Stroke.Color = Theme["Color Stroke"]
-		            ToggleBall.BackgroundColor3 = Color3.fromRGB(60, 200, 90)
-
-		            CreateTween({
-			            ToggleBall,
-			            "Position",
-			            UDim2.new(1, 0, 0.5),
-			            0.25,
-			            true
-		            })
-
-		            ToggleBall.AnchorPoint = Vector2.new(1, 0.5)
-	            else
-		            -- DESLIGADO
-		            Stroke.Color = Color3.fromRGB(220, 40, 40)
-		            ToggleBall.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
-
-		            CreateTween({
-			            ToggleBall,
-			            "Position",
-			            UDim2.new(0, 0, 0.5),
-			            0.25,
-			            true
-		            })
-
-		            ToggleBall.AnchorPoint = Vector2.new(0, 0.5)
-	            end
-
-	            WaitClick = false
+                task.delay(0.25, function()
+                    Busy = false
+                end)
             end
 
-	        task.spawn(SetToggle, Default)
+            task.spawn(SetToggle, Default)
 
-	        Button.Activated:Connect(function()
-		        SetToggle(not Default)
-	        end)
+            Button.Activated:Connect(function()
+                SetToggle(not Default)
+            end)
 
 	         -- API PÚBLICA
-	        local Toggle = {}
+	        local ToggleAPI = {}
 
-	        function Toggle:Visible(...)
+            function ToggleAPI:Set(val)
+                if type(val) == "boolean" then
+                    SetToggle(val)
+                end
+            end
+				
+	        function ToggleAPI:Visible(...)
 		        Funcs:ToggleVisible(Button, ...)
 	        end
 
-	        function Toggle:Destroy()
+	        function ToggleAPI:Destroy()
 		        Button:Destroy()
 	        end
 
-	        function Toggle:Callback(...)
-	            local fn = Funcs:InsertCallback(Callback, ...)
-	            if type(fn) == "function" then
-		            fn()
-	            end
+	        function ToggleAPI:Callback(fn)
+                Callback = fn
             end
 
-	        function Toggle:Set(Value)
-	            if type(Value) == "boolean" then
-		            task.spawn(SetToggle, Value)
-	            elseif type(Value) == "function" then
-		            Callback = Value
-	            end
+	        function ToggleAPI:Set(Value)
+                if type(Value) == "boolean" then
+                    task.spawn(SetToggle, Value)
+                elseif type(Value) == "function" then
+                    Callback = Value
+                end
             end
 
-	        return Toggle 
+	        return ToggleAPI
         end
 		function Tab:AddDropdown(Configs)
 			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
