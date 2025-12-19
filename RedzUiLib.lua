@@ -2002,11 +2002,16 @@ function redzlib:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Hub 2"]
 			})
+			
 			Make("Corner", ToggleHolder, UDim.new(0.5, 0))
 
             -- Stroke manual
-            local Stroke = Instance.new("UIStroke", ToggleHolder)
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Parent = ToggleHolder
             Stroke.Thickness = 1.5
+            Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            Stroke.LineJoinMode = Enum.LineJoinMode.Round
+            Stroke.Color = Theme["Color Stroke"]
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
