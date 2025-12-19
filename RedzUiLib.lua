@@ -2365,7 +2365,7 @@ function redzlib:MakeWindow(Configs)
 			function Dropdown:Add(...)
 				local NewOptions = {...}
 				if type(NewOptions[1]) == "table" then
-					table.foreach(Option, function(_,Name)
+					table.foreach(NewOption[1], function(_, Name)
 						AddOption(Name)
 					end)
 				else
@@ -2376,8 +2376,10 @@ function redzlib:MakeWindow(Configs)
 			end
 			function Dropdown:Remove(Option)
 				for index, Value in pairs(GetOptions()) do
-					if type(Option) == "number" and index == Option or Value.Name == "Option" then
-						RemoveOption(index, Value.Value)
+					if type(Option) == "number" and index == Option then
+			            RemoveOption(index, Value.Value)
+		            elseif type(Option) == "string" and Value.Name == Option then
+			            RemoveOption(index, Value.Value)
 					end
 				end
 			end
@@ -2391,7 +2393,7 @@ function redzlib:MakeWindow(Configs)
 				elseif type(Option) == "number" then
 					for ind,Val in pairs(Options) do
 						if ind == Option then
-							Val.Active()
+							Select(Val)
 						end
 					end
 				end
@@ -2485,7 +2487,8 @@ function redzlib:MakeWindow(Configs)
 			local function UpdateValues()
 				Indicator.Size = UDim2.new(SliderIcon.Position.X.Scale, 0, 1, 0)
 				local SliderPos = SliderIcon.Position.X.Scale
-				local NewValue = math.floor(((SliderPos * Max) / Max) * (Max - Min) + Min)
+				local NewValue = math.floor((SliderPos * (Max - Min)) + Min)
+                NewValue = math.clamp(NewValue, Min, Max)
 				UpdateLabel(NewValue)
 			end
 			
@@ -2511,9 +2514,11 @@ function redzlib:MakeWindow(Configs)
 			function SetSlider(NewValue)
 				if type(NewValue) ~= "number" then return end
 				
-				local Min, Max = Min * Increase, Max * Increase
+				local RealMin = Min * Increase
 				
-				local SliderPos = (NewValue - Min) / (Max - Min)
+                local RealMax = Max * Increase
+				
+                local SliderPos = (NewValue - RealMin) / (RealMax - RealMin)
 				
 				SetFlag(Flag, NewValue)
 				CreateTween({ SliderIcon, "Position", UDim2.fromScale(math.clamp(SliderPos, 0, 1), 0.5), 0.3, true })
@@ -2534,7 +2539,7 @@ function redzlib:MakeWindow(Configs)
 					SetSlider(NewVal1)
 				end
 			end
-			function Slider:Callback(...) Funcs:InsertCallback(Callback, ...)(tonumber(Default)) end
+			function Slider:Callback(fn) Callback = fn end
 			function Slider:Visible(...) Funcs:ToggleVisible(Button, ...) end
 			function Slider:Destroy() Button:Destroy() end
 			return Slider
@@ -2679,7 +2684,9 @@ function redzlib:MakeWindow(Configs)
 			
 			local ClickDelay
 			JoinButton.Activated:Connect(function()
-				setclipboard(Invite)
+				if setclipboard then
+	                setclipboard(Invite)
+                end
 				if ClickDelay then return end
 				
 				ClickDelay = true
