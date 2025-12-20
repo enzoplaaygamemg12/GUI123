@@ -1390,21 +1390,29 @@ function redzlib:SetTheme(NewTheme)
 	redzlib.Save.Theme = NewTheme
 	SaveJson("redz library V5.json", redzlib.Save)
 	Theme = redzlib.Themes[NewTheme]
-	
-	Comnection:FireConnection("ThemeChanged", NewTheme)
-	table.foreach(redzlib.Instances, function(_,Val)
+
+	-- ATUALIZA TODAS AS INSTÂNCIAS REGISTRADAS
+	table.foreach(redzlib.Instances, function(_, Val)
+		if not Val.Instance or not Val.Instance.Parent then return end
+
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
+
 		elseif Val.Type == "Frame" then
 			Val.Instance.BackgroundColor3 = Theme["Color Hub 2"]
+
 		elseif Val.Type == "Stroke" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Stroke"]
+
 		elseif Val.Type == "Theme" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
+
 		elseif Val.Type == "Text" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Text"]
+
 		elseif Val.Type == "DarkText" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Dark Text"]
+
 		elseif Val.Type == "ScrollBar" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
 		end
