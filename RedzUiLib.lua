@@ -2030,7 +2030,9 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = Color3.fromRGB(220, 40, 40)
-			}), "Stroke")Make("Corner", ToggleCircle, UDim.new(0.5, 0))
+			})
+				
+			Make("Corner", ToggleCircle, UDim.new(0.5, 0))
 			
 			local Busy = false
 			
