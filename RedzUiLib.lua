@@ -893,6 +893,15 @@ local redzlib = {
 		}
 	end)()
 }
+function redzlib:GetIcon(name)
+	local Icons = {
+		info = "rbxassetid://10747384394",
+		success = "rbxassetid://10709790644",
+		error = "rbxassetid://10709790948",
+		warning = "rbxassetid://10709791232"
+	}
+	return Icons[name] or Icons.info
+end
 
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
@@ -1136,9 +1145,12 @@ local function CreateTween(Configs)
 	local NewVal = Configs[3] or Configs.NewVal
 	local Time = Configs[4] or Configs.Time or 0.5
 	local TweenWait = Configs[5] or Configs.wait or false
+
 	local TweenInfo = TweenInfo.new(Time, Enum.EasingStyle.Quint)
-	
-	local Tween = TweenService:Create(Instance, TweenInfo, {[Prop] = NewVal})
+	local Tween = TweenService:Create(Instance, TweenInfo, {
+		[Prop] = NewVal
+	})
+
 	Tween:Play()
 	if TweenWait then
 		Tween.Completed:Wait()
