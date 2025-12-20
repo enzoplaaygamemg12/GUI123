@@ -1408,10 +1408,10 @@ function redzlib:SetScale(NewScale)
 end
 
 -- =========================
--- NOTIFY SYSTEM (REDZ STYLE)
+-- NOTIFY SYSTEM (REDZ STYLE) - FIXED
 -- =========================
 
-local NotifyStack = 0
+local NotifyFrames = {}
 
 function redzlib:Notify(ScreenGui, Configs)
 	Configs = Configs or {}
@@ -1429,12 +1429,11 @@ function redzlib:Notify(ScreenGui, Configs)
 		warning = Color3.fromRGB(255,180,70)
 	}
 
-	NotifyStack += 1
-
+	-- Frame
 	local Frame = InsertTheme(Create("Frame", ScreenGui, {
 		Size = UDim2.fromOffset(270, 70),
 		AnchorPoint = Vector2.new(1,1),
-		Position = UDim2.new(1, -15, 1, -(NotifyStack * 80)),
+		Position = UDim2.new(1, -15, 1, 100),
 		BackgroundTransparency = 0.05,
 		ZIndex = 100
 	}), "Frame")
@@ -1446,7 +1445,7 @@ function redzlib:Notify(ScreenGui, Configs)
 	Stroke.Thickness = 1.5
 
 	-- Ícone
-	local IconImg = Create("ImageLabel", Frame, {
+	Create("ImageLabel", Frame, {
 		Size = UDim2.fromOffset(20,20),
 		Position = UDim2.fromOffset(12, 12),
 		BackgroundTransparency = 1,
@@ -1477,17 +1476,49 @@ function redzlib:Notify(ScreenGui, Configs)
 		Size = UDim2.new(1, -50, 0, 30)
 	}), "DarkText")
 
-	-- Animação de entrada
-	Frame.Position += UDim2.fromOffset(30,0)
-	Frame.BackgroundTransparency = 1
-	CreateTween({Frame, "Position", Frame.Position - UDim2.fromOffset(30,0), 0.25})
-	CreateTween({Frame, "BackgroundTransparency", 0.05, 0.25})
+	-- adiciona no stack
+	table.insert(NotifyFrames, Frame)
 
+	-- reorganiza posições
+	local function UpdatePositions()
+		for i,v in ipairs(NotifyFrames) do
+			CreateTween({
+				v,
+				"Position",
+				UDim2.new(1, -15, 1, -(i * 80)),
+				0.25
+			})
+		end
+	end
+
+	UpdatePositions()
+
+	-- remove depois do tempo
 	task.delay(Duration, function()
-		CreateTween({Frame, "Position", Frame.Position + UDim2.fromOffset(30,0), 0.25})
-		CreateTween({Frame, "BackgroundTransparency", 1, 0.25, true})
-		Frame:Destroy()
-		NotifyStack -= 1
+		for i,v in ipairs(NotifyFrames) do
+			if v == Frame then
+				table.remove(NotifyFrames, i)
+				break
+			end
+		end
+
+		CreateTween({
+			Frame,
+			"Position",
+			Frame.Position + UDim2.fromOffset(40,0),
+			0.25
+		})
+
+		CreateTween({
+			Frame,
+			"BackgroundTransparency",
+			1,
+			0.25,
+			true
+		})
+
+		task.wait(0.1)
+		UpdatePositions()
 	end)
 end
 
