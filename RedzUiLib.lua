@@ -1407,6 +1407,90 @@ function redzlib:SetScale(NewScale)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
 
+-- =========================
+-- NOTIFY SYSTEM (REDZ STYLE)
+-- =========================
+
+local NotifyStack = 0
+
+function redzlib:Notify(ScreenGui, Configs)
+	Configs = Configs or {}
+
+	local Title = Configs.Title or "Notification"
+	local Text = Configs.Text or Configs.Content or ""
+	local Duration = Configs.Duration or 4
+	local Type = string.lower(Configs.Type or "info")
+	local Icon = Configs.Icon or Type
+
+	local Colors = {
+		info = Color3.fromRGB(80,150,255),
+		success = Color3.fromRGB(80,200,120),
+		error = Color3.fromRGB(220,60,60),
+		warning = Color3.fromRGB(255,180,70)
+	}
+
+	NotifyStack += 1
+
+	local Frame = InsertTheme(Create("Frame", ScreenGui, {
+		Size = UDim2.fromOffset(270, 70),
+		AnchorPoint = Vector2.new(1,1),
+		Position = UDim2.new(1, -15, 1, -(NotifyStack * 80)),
+		BackgroundTransparency = 0.05,
+		ZIndex = 100
+	}), "Frame")
+
+	Make("Corner", Frame, {Radius = UDim.new(0,8)})
+
+	local Stroke = Make("Stroke", Frame)
+	Stroke.Color = Colors[Type] or Colors.info
+	Stroke.Thickness = 1.5
+
+	-- Ícone
+	local IconImg = Create("ImageLabel", Frame, {
+		Size = UDim2.fromOffset(20,20),
+		Position = UDim2.fromOffset(12, 12),
+		BackgroundTransparency = 1,
+		Image = redzlib:GetIcon(Icon)
+	})
+
+	-- Título
+	InsertTheme(Create("TextLabel", Frame, {
+		Text = Title,
+		Font = Enum.Font.GothamBold,
+		TextSize = 13,
+		TextXAlignment = "Left",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(40, 8),
+		Size = UDim2.new(1, -50, 0, 18)
+	}), "Text")
+
+	-- Texto
+	InsertTheme(Create("TextLabel", Frame, {
+		Text = Text,
+		Font = Enum.Font.Gotham,
+		TextWrapped = true,
+		TextSize = 11,
+		TextXAlignment = "Left",
+		TextYAlignment = "Top",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(40, 28),
+		Size = UDim2.new(1, -50, 0, 30)
+	}), "DarkText")
+
+	-- Animação de entrada
+	Frame.Position += UDim2.fromOffset(30,0)
+	Frame.BackgroundTransparency = 1
+	CreateTween({Frame, "Position", Frame.Position - UDim2.fromOffset(30,0), 0.25})
+	CreateTween({Frame, "BackgroundTransparency", 0.05, 0.25})
+
+	task.delay(Duration, function()
+		CreateTween({Frame, "Position", Frame.Position + UDim2.fromOffset(30,0), 0.25})
+		CreateTween({Frame, "BackgroundTransparency", 1, 0.25, true})
+		Frame:Destroy()
+		NotifyStack -= 1
+	end)
+end
+
 function redzlib:MakeWindow(Configs)
 	local WTitle = Configs[1] or Configs.Name or Configs.Title or "redz Library V5"
 	local WMiniText = Configs[2] or Configs.SubTitle or "by : redz9999"
@@ -1585,6 +1669,9 @@ function redzlib:MakeWindow(Configs)
 	
 	local Minimized, SaveSize, WaitClick
 	local Window, FirstTab = {}, false
+	function Window:Notify(Configs)
+	    redzlib:Notify(ScreenGui, Configs)
+    end
 	function Window:CloseBtn()
 		local Dialog = Window:Dialog({
 			Title = "Close",
