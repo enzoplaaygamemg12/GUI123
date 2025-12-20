@@ -1992,7 +1992,10 @@ function redzlib:MakeWindow(Configs)
 			local Callback = Funcs:GetCallback(Configs, 3)                           
 			local Flag = Configs.Flag
 			local Default = Configs[2] or false
-			if CheckFlag(Flag) then Default = GetFlag(Flag) end
+			
+			if Flag and CheckFlag(Flag) then
+				Default = GetFlag(Flag)
+			end
 			
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
 			
@@ -2000,6 +2003,7 @@ function redzlib:MakeWindow(Configs)
 				Size = UDim2.new(0, 35, 0, 18),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 1,
 				BackgroundColor3 = Theme["Color Hub 2"]
 			})
 			
@@ -2011,7 +2015,8 @@ function redzlib:MakeWindow(Configs)
             Stroke.Thickness = 1.5
             Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             Stroke.LineJoinMode = Enum.LineJoinMode.Round
-            Stroke.Color = Theme["Color Stroke"]
+
+			local NeutralStroke = Theme["Color Dark Text"]
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2020,33 +2025,36 @@ function redzlib:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(0.5, 0.5)
 			})
 			
-			local ToggleBall = Create("Frame", Slider, {
+			local ToggleCircle = Create("Frame", Slider, {
 				Size = UDim2.new(0, 12, 0, 12),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = Color3.fromRGB(220, 40, 40)
-			})
-			Make("Corner", Toggle, UDim.new(0.5, 0))
+			}), "Stroke")Make("Corner", ToggleCircle, UDim.new(0.5, 0))
 			
 			local Busy = false
 			
 			local function SetToggle(state)
                 if Busy then return end
                 Busy = true
+				
                 Default = state
-                SetFlag(Flag, state)
+				if flag then
+                    SetFlag(Flag, state)
+				end
+				
                 Funcs:FireCallback(Callback, state)
 
                 if state then
-                    Stroke.Color = Theme["Color Stroke"]
-                    CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(40, 200, 40), 0.2})
-                    CreateTween({ToggleBall, "Position", UDim2.new(1, 0, 0.5), 0.25})
-                    CreateTween({ToggleBall, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
+                    Stroke.Color = NeutralStroke
+                    CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(40, 200, 40), 0.2})
+                    CreateTween({ToggleCircle, "Position", UDim2.new(1, 0, 0.5), 0.25})
+                    CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
                 else
                     Stroke.Color = Theme["Color Stroke"]
-                    CreateTween({ToggleBall, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.2})
-                    CreateTween({ToggleBall, "Position", UDim2.new(0, 0, 0.5), 0.25})
-                    CreateTween({ToggleBall, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
+                    CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.2})
+                    CreateTween({ToggleCircle, "Position", UDim2.new(0, 0, 0.5), 0.25})
+                    CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
                 end
 
                 task.delay(0.25, function()
@@ -2066,6 +2074,8 @@ function redzlib:MakeWindow(Configs)
             function ToggleAPI:Set(val)
                 if type(val) == "boolean" then
                     SetToggle(val)
+				elseif type(val) == "function" then
+					Callback = val
                 end
             end
 				
@@ -2079,14 +2089,6 @@ function redzlib:MakeWindow(Configs)
 
 	        function ToggleAPI:Callback(fn)
                 Callback = fn
-            end
-
-	        function ToggleAPI:Set(Value)
-                if type(Value) == "boolean" then
-                    task.spawn(SetToggle, Value)
-                elseif type(Value) == "function" then
-                    Callback = Value
-                end
             end
 
 	        return ToggleAPI
