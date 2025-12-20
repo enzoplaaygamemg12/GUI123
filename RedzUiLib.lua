@@ -11,24 +11,17 @@ local PlayerMouse = Player:GetMouse()
 local redzlib = {
 	Themes = {
 		Darker = {
-            ["Color Hub 1"] = ColorSequence.new({
-                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
-                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(18, 18, 18)),
-                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
-            }),
-
-            -- Fundo das tabs / páginas
-            ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),
-
-            -- Bordas, outlines, switch stroke (vermelho)
-            ["Color Stroke"] = Color3.fromRGB(220, 40, 40),
-
-            -- Texto principal
-            ["Color Text"] = Color3.fromRGB(240, 240, 240),
-
-            -- Texto secundário
-            ["Color Dark Text"] = Color3.fromRGB(170, 170, 170)
-        },
+			["Color Hub 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32.5, 32.5, 32.5)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
+			}),
+			["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
+			["Color Stroke"] = Color3.fromRGB(40, 40, 40),
+			["Color Theme"] = Color3.fromRGB(88, 101, 242),
+			["Color Text"] = Color3.fromRGB(243, 243, 243),
+			["Color Dark Text"] = Color3.fromRGB(180, 180, 180)
+		},
 		Dark = {
 			["Color Hub 1"] = ColorSequence.new({
 				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(40, 40, 40)),
@@ -893,15 +886,6 @@ local redzlib = {
 		}
 	end)()
 }
-function redzlib:GetIcon(name)
-	local Icons = {
-		info = "rbxassetid://10747384394",
-		success = "rbxassetid://10709790644",
-		error = "rbxassetid://10709790948",
-		warning = "rbxassetid://10709791232"
-	}
-	return Icons[name] or Icons.info
-end
 
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
@@ -1145,12 +1129,9 @@ local function CreateTween(Configs)
 	local NewVal = Configs[3] or Configs.NewVal
 	local Time = Configs[4] or Configs.Time or 0.5
 	local TweenWait = Configs[5] or Configs.wait or false
-
 	local TweenInfo = TweenInfo.new(Time, Enum.EasingStyle.Quint)
-	local Tween = TweenService:Create(Instance, TweenInfo, {
-		[Prop] = NewVal
-	})
-
+	
+	local Tween = TweenService:Create(Instance, TweenInfo, {[Prop] = NewVal})
 	Tween:Play()
 	if TweenWait then
 		Tween.Completed:Wait()
@@ -1216,31 +1197,16 @@ local function AddEle(Name, Func)
 	redzlib.Elements[Name] = Func
 end
 
-local function Make(Ele, Instance, Props, ...)
-    local Element = redzlib.Elements[Ele](Instance, Props, ...)
-    
-    -- PROTEÇÃO: se Props não for table, ignora
-    if type(Props) ~= "table" then
-        return Element
-    end
-
-    SetProps(Element, Props)
-    return Element
+local function Make(Ele, Instance, props, ...)
+	local Element = redzlib.Elements[Ele](Instance, props, ...)
+	return Element
 end
 
-AddEle("Corner", function(parent, props, ...)
-    local radius = UDim.new(0, 8)
-
-    if type(props) == "table" and props.CornerRadius then
-        radius = props.CornerRadius
-        props = nil -- impede SetProps de tentar aplicar CornerRadius
-    end
-
-    local New = Create("UICorner", parent, {
-        CornerRadius = radius
-    })
-
-    return New
+AddEle("Corner", function(parent, CornerRadius)
+	local New = SetProps(Create("UICorner", parent, {
+		CornerRadius = CornerRadius or UDim.new(0, 7)
+	}), props)
+	return New
 end)
 
 AddEle("Stroke", function(parent, props, ...)
@@ -1434,126 +1400,6 @@ function redzlib:SetScale(NewScale)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
 
--- =========================
--- NOTIFY SYSTEM (REDZ STYLE) - FIXED
--- =========================
-
-local NotifyFrames = {}
-
-function redzlib:Notify(ScreenGui, Configs)
-	Configs = Configs or {}
-
-	local Title = Configs.Title or "Notification"
-	local Text = Configs.Text or Configs.Content or ""
-	local Duration = Configs.Duration or 4
-	local Type = string.lower(Configs.Type or "info")
-	local Icon = Configs.Icon or Type
-
-	local Colors = {
-		info = Color3.fromRGB(80,150,255),
-		success = Color3.fromRGB(80,200,120),
-		error = Color3.fromRGB(220,60,60),
-		warning = Color3.fromRGB(255,180,70)
-	}
-
-	-- Frame
-	local Frame = InsertTheme(Create("Frame", ScreenGui, {
-		Size = UDim2.fromOffset(270, 70),
-		AnchorPoint = Vector2.new(1,1),
-		Position = UDim2.new(1, -15, 1, 100),
-		BackgroundTransparency = 0.05,
-		ZIndex = 100
-	}), "Frame")
-		
-	Make("Corner", Frame, {
-        CornerRadius = UDim.new(0,8)
-    })
-
-	local Stroke = Make("Stroke", Frame)
-	Stroke.Color = Colors[Type] or Colors.info
-	Stroke.Thickness = 1.5
-
-	-- Ícone
-	Create("ImageLabel", Frame, {
-		Size = UDim2.fromOffset(20,20),
-		Position = UDim2.fromOffset(12, 12),
-		BackgroundTransparency = 1,
-		Image = redzlib:GetIcon(Icon)
-		IconImg.ZIndex = 101
-	})
-
-	-- Título
-	InsertTheme(Create("TextLabel", Frame, {
-		Text = Title,
-		Font = Enum.Font.GothamBold,
-		TextSize = 13,
-		TextXAlignment = "Left",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(40, 8),
-		Size = UDim2.new(1, -50, 0, 18)
-		TitleLabel.ZIndex = 101
-	}), "Text")
-
-	-- Texto
-	InsertTheme(Create("TextLabel", Frame, {
-		Text = Text,
-		Font = Enum.Font.Gotham,
-		TextWrapped = true,
-		TextSize = 11,
-		TextXAlignment = "Left",
-		TextYAlignment = "Top",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(40, 28),
-		Size = UDim2.new(1, -50, 0, 30)
-		TextLabel.ZIndex = 101
-	}), "DarkText")
-
-	-- adiciona no stack
-	table.insert(NotifyFrames, Frame)
-
-	-- reorganiza posições
-	local function UpdatePositions()
-		for i,v in ipairs(NotifyFrames) do
-			CreateTween({
-				v,
-				"Position",
-				UDim2.new(1, -15, 1, -(i * 80)),
-				0.25
-			})
-		end
-	end
-
-	UpdatePositions()
-
-	-- remove depois do tempo
-	task.delay(Duration, function()
-		for i,v in ipairs(NotifyFrames) do
-			if v == Frame then
-				table.remove(NotifyFrames, i)
-				break
-			end
-		end
-
-		CreateTween({
-			Frame,
-			"Position",
-			Frame.Position + UDim2.fromOffset(40,0),
-			0.25
-		})
-
-		CreateTween({
-			Frame,
-			"BackgroundTransparency",
-			1,
-			0.25,
-			true
-		})
-
-		task.wait(0.1)
-		UpdatePositions()
-	end)
-end
-
 function redzlib:MakeWindow(Configs)
 	local WTitle = Configs[1] or Configs.Name or Configs.Title or "redz Library V5"
 	local WMiniText = Configs[2] or Configs.SubTitle or "by : redz9999"
@@ -1732,9 +1578,6 @@ function redzlib:MakeWindow(Configs)
 	
 	local Minimized, SaveSize, WaitClick
 	local Window, FirstTab = {}, false
-	function Window:Notify(Configs)
-	    redzlib:Notify(ScreenGui, Configs)
-    end
 	function Window:CloseBtn()
 		local Dialog = Window:Dialog({
 			Title = "Close",
@@ -2137,36 +1980,21 @@ function redzlib:MakeWindow(Configs)
 			return Button
 		end
 		function Tab:AddToggle(Configs)
-			local TName = Configs[1] or "Toggle"
-			local TDesc = Configs.Desc or ""
-			local Callback = Funcs:GetCallback(Configs, 3)                           
-			local Flag = Configs.Flag
-			local Default = Configs[2] or false
-			
-			if Flag and CheckFlag(Flag) then
-				Default = GetFlag(Flag)
-			end
+			local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
+			local TDesc = Configs.Desc or Configs.Description or ""
+			local Callback = Funcs:GetCallback(Configs, 3)
+			local Flag = Configs[4] or Configs.Flag or false
+			local Default = Configs[2] or Configs.Default or false
+			if CheckFlag(Flag) then Default = GetFlag(Flag) end
 			
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
 			
-			local ToggleHolder = Create("Frame", Button, {
+			local ToggleHolder = InsertTheme(Create("Frame", Button, {
 				Size = UDim2.new(0, 35, 0, 18),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Hub 2"]
-			})
-			
-			Make("Corner", ToggleHolder, UDim.new(0.5, 0))
-
-            -- Stroke manual
-            local HolderStroke = Instance.new("UIStroke")
-            HolderStroke.Parent = ToggleHolder
-            HolderStroke.Thickness = 1.5
-            HolderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            HolderStroke.LineJoinMode = Enum.LineJoinMode.Round
-            HolderStroke.Color = Theme["Color Stroke"] -- vermelho fixo
-
-			local NeutralStroke = Theme["Color Dark Text"]
+				BackgroundColor3 = Theme["Color Stroke"]
+			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2175,90 +2003,57 @@ function redzlib:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(0.5, 0.5)
 			})
 			
-			local ToggleCircle = Create("Frame", Slider, {
+			local Toggle = InsertTheme(Create("Frame", Slider, {
 				Size = UDim2.new(0, 12, 0, 12),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Color3.fromRGB(220, 40, 40)
-			})
-				
-			Make("Corner", ToggleCircle, UDim.new(0.5, 0))
-
-			-- Stroke da bolinha
-            local BallStroke = Instance.new("UIStroke")
-            BallStroke.Parent = ToggleCircle
-            BallStroke.Thickness = 1
-            BallStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            BallStroke.LineJoinMode = Enum.LineJoinMode.Round
-            BallStroke.Color = Theme["Color Stroke"]
-
-			local Busy = false
+				BackgroundColor3 = Theme["Color Theme"]
+			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
 			
-			local function SetToggle(state)
-                if Busy then return end
-                Busy = true
+			local WaitClick
+			local function SetToggle(Val)
+				if WaitClick then return end
 				
-                Default = state
-				if Flag then
-                    SetFlag(Flag, state)
+				WaitClick, Default = true, Val
+				SetFlag(Flag, Default)
+				Funcs:FireCallback(Callback, Default)
+				if Default then
+					CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
+					CreateTween({Toggle, "BackgroundTransparency", 0, 0.25})
+					CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25, Wait or false})
+				else
+					CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
+					CreateTween({Toggle, "BackgroundTransparency", 0.8, 0.25})
+					CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25, Wait or false})
 				end
-				
-                Funcs:FireCallback(Callback, state)
-
-                if state then
-                    -- ON
-                    HolderStroke.Color = NeutralStroke
-                    BallStroke.Color = Color3.fromRGB(40, 200, 40)
-
-                    CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(40, 200, 40), 0.2})
-                    CreateTween({ToggleCircle, "Position", UDim2.new(1, 0, 0.5), 0.25})
-                    CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
-                else
-                    -- OFF
-                    HolderStroke.Color = Theme["Color Stroke"]
-                    BallStroke.Color = Theme["Color Stroke"]
-
-                    CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.2})
-                    CreateTween({ToggleCircle, "Position", UDim2.new(0, 0, 0.5), 0.25})
-                    CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
-                end
-
-                task.delay(0.25, function()
-                    Busy = false
-                end)
-            end
-
-            task.spawn(SetToggle, Default)
-
-            Button.Activated:Connect(function()
-                SetToggle(not Default)
-            end)
-
-	         -- API PÚBLICA
-	        local ToggleAPI = {}
-
-            function ToggleAPI:Set(val)
-                if type(val) == "boolean" then
-                    SetToggle(val)
-				elseif type(val) == "function" then
-					Callback = val
-                end
-            end
-				
-	        function ToggleAPI:Visible(...)
-		        Funcs:ToggleVisible(Button, ...)
-	        end
-
-	        function ToggleAPI:Destroy()
-		        Button:Destroy()
-	        end
-
-	        function ToggleAPI:Callback(fn)
-                Callback = fn
-            end
-
-	        return ToggleAPI
-        end
+				WaitClick = false
+			end;task.spawn(SetToggle, Default)
+			
+			Button.Activated:Connect(function()
+				SetToggle(not Default)
+			end)
+			
+			local Toggle = {}
+			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
+			function Toggle:Destroy() Button:Destroy() end
+			function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
+			function Toggle:Set(Val1, Val2)
+				if type(Val1) == "string" and type(Val2) == "string" then
+					LabelFunc:SetTitle(Val1)
+					LabelFunc:SetDesc(Val2)
+				elseif type(Val1) == "string" then
+					LabelFunc:SetTitle(Val1, false, true)
+				elseif type(Val1) == "boolean" then
+					if WaitClick and Val2 then
+						repeat task.wait() until not WaitClick
+					end
+					task.spawn(SetToggle, Val1)
+				elseif type(Val1) == "function" then
+					Callback = Val1
+				end
+			end
+			return Toggle
+		end
 		function Tab:AddDropdown(Configs)
 			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
 			local DDesc = Configs.Desc or Configs.Description or ""
@@ -2558,12 +2353,12 @@ function redzlib:MakeWindow(Configs)
 			local Dropdown = {}
 			function Dropdown:Visible(...) Funcs:ToggleVisible(Button, ...) end
 			function Dropdown:Destroy() Button:Destroy() end
-			function Dropdown:Callback() CallbackSelected() end
+			function Dropdown:Callback(...) Funcs:InsertCallback(Callback, ...)(Selected) end
 			
 			function Dropdown:Add(...)
 				local NewOptions = {...}
 				if type(NewOptions[1]) == "table" then
-					table.foreach(NewOptions[1], function(_, Name)
+					table.foreach(Option, function(_,Name)
 						AddOption(Name)
 					end)
 				else
@@ -2574,26 +2369,24 @@ function redzlib:MakeWindow(Configs)
 			end
 			function Dropdown:Remove(Option)
 				for index, Value in pairs(GetOptions()) do
-					if type(Option) == "number" and index == Option then
-			            RemoveOption(index, Value.Value)
-		            elseif type(Option) == "string" and Value.Name == Option then
-			            RemoveOption(index, Value.Value)
+					if type(Option) == "number" and index == Option or Value.Name == "Option" then
+						RemoveOption(index, Value.Value)
 					end
 				end
 			end
 			function Dropdown:Select(Option)
 				if type(Option) == "string" then
-					for _,Val in pairs(GetOptions()) do
+					for _,Val in pairs(Options) do
 						if Val.Name == Option then
-							Select(Val)
+							Val.Active()
 						end
 					end
 				elseif type(Option) == "number" then
 					for ind,Val in pairs(Options) do
 						if ind == Option then
-							Select(Val)
+							Val.Active()
 						end
-					end	
+					end
 				end
 			end
 			function Dropdown:Set(Val1, Clear)
@@ -2605,13 +2398,6 @@ function redzlib:MakeWindow(Configs)
 			end
 			return Dropdown
 		end
-
-		function Tab:AddMultiDropdown(Configs)
-	        Configs = Configs or {}
-	        Configs.MultiSelect = true
-	        return self:AddDropdown(Configs)
-        end
-		
 		function Tab:AddSlider(Configs)
 			local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
 			local SDesc = Configs.Desc or Configs.Description or ""
@@ -2692,8 +2478,7 @@ function redzlib:MakeWindow(Configs)
 			local function UpdateValues()
 				Indicator.Size = UDim2.new(SliderIcon.Position.X.Scale, 0, 1, 0)
 				local SliderPos = SliderIcon.Position.X.Scale
-				local NewValue = math.floor((SliderPos * (Max - Min)) + Min)
-                NewValue = math.clamp(NewValue, Min, Max)
+				local NewValue = math.floor(((SliderPos * Max) / Max) * (Max - Min) + Min)
 				UpdateLabel(NewValue)
 			end
 			
@@ -2719,11 +2504,9 @@ function redzlib:MakeWindow(Configs)
 			function SetSlider(NewValue)
 				if type(NewValue) ~= "number" then return end
 				
-				local RealMin = Min * Increase
+				local Min, Max = Min * Increase, Max * Increase
 				
-                local RealMax = Max * Increase
-				
-                local SliderPos = (NewValue - RealMin) / (RealMax - RealMin)
+				local SliderPos = (NewValue - Min) / (Max - Min)
 				
 				SetFlag(Flag, NewValue)
 				CreateTween({ SliderIcon, "Position", UDim2.fromScale(math.clamp(SliderPos, 0, 1), 0.5), 0.3, true })
@@ -2744,7 +2527,7 @@ function redzlib:MakeWindow(Configs)
 					SetSlider(NewVal1)
 				end
 			end
-			function Slider:Callback(fn) Callback = fn end
+			function Slider:Callback(...) Funcs:InsertCallback(Callback, ...)(tonumber(Default)) end
 			function Slider:Visible(...) Funcs:ToggleVisible(Button, ...) end
 			function Slider:Destroy() Button:Destroy() end
 			return Slider
@@ -2889,9 +2672,7 @@ function redzlib:MakeWindow(Configs)
 			
 			local ClickDelay
 			JoinButton.Activated:Connect(function()
-				if setclipboard then
-	                setclipboard(Invite)
-                end
+				setclipboard(Invite)
 				if ClickDelay then return end
 				
 				ClickDelay = true
