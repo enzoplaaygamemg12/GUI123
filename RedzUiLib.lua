@@ -1140,18 +1140,20 @@ local function ConnectSave(Instance, func)
 end
 
 local function CreateTween(Configs)
-	local Instance = Configs[1] or Configs.Instance
-	local Prop = Configs[2] or Configs.Prop
-	local NewVal = Configs[3] or Configs.NewVal
-	local Time = Configs[4] or Configs.Time or 0.5
-	local TweenWait = Configs[5] or Configs.wait or false
-	local TweenInfo = TweenInfo.new(Time, Enum.EasingStyle.Quint)
-	
-	local Tween = TweenService:Create(Instance, TweenInfo, {[Prop] = NewVal})
+	local Instance = Configs[1]
+	local Prop = Configs[2]
+	local NewVal = Configs[3]
+	local Time = Configs[4] or 0.25
+	local Wait = Configs[5] or false
+
+	local Tween = TweenService:Create(
+		Instance,
+		TweenInfo.new(Time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{[Prop] = NewVal}
+	)
+
 	Tween:Play()
-	if TweenWait then
-		Tween.Completed:Wait()
-	end
+	if Wait then Tween.Completed:Wait() end
 	return Tween
 end
 
@@ -1419,6 +1421,80 @@ function redzlib:SetTheme(NewTheme)
 	end)
 end
 
+dow
+    local Notifications = {}
+    local NotifyIndex = 0
+
+    function redzlib:Notify(Configs)
+        Configs = Configs or {}
+
+        local Title = Configs.Title or Configs[1] or "Notification"
+        local Content = Configs.Content or Configs[2] or ""
+        local Duration = Configs.Time or Configs.Duration or 3
+
+        NotifyIndex += 1
+        local Index = NotifyIndex
+
+        local Gui = Instance.new("ScreenGui")
+        Gui.Name = "RedzNotify"
+        Gui.IgnoreGuiInset = true
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game:GetService("CoreGui")
+
+        local Frame = Create("Frame", Gui, {
+            Size = UDim2.new(0, 280, 0, 70),
+            Position = UDim2.new(1, 320, 1, -40 - ((Index - 1) * 80)),
+            AnchorPoint = Vector2.new(1, 1),
+            BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        })
+
+        Make("Corner", Frame, UDim.new(0, 8))
+        InsertTheme(Frame, "Frame")
+
+        local Stroke = Instance.new("UIStroke", Frame)
+        Stroke.Thickness = 1.5
+        Stroke.Color = Color3.fromRGB(220, 60, 60)
+
+        local TitleLabel = Create("TextLabel", Frame, {
+            Text = Title,
+            Font = Enum.Font.GothamBold,
+            TextSize = 13,
+            TextXAlignment = Left,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -16, 0, 20),
+            Position = UDim2.new(0, 8, 0, 6),
+            TextColor3 = Color3.fromRGB(245,245,245)
+        })
+
+        InsertTheme(TitleLabel, "Text")
+
+        local ContentLabel = Create("TextLabel", Frame, {
+            Text = Content,
+            Font = Enum.Font.Gotham,
+            TextSize = 11,
+            TextWrapped = true,
+            TextYAlignment = Top,
+            TextXAlignment = Left,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -16, 0, 36),
+            Position = UDim2.new(0, 8, 0, 28),
+            TextColor3 = Color3.fromRGB(180,180,180)
+        })
+
+        InsertTheme(ContentLabel, "DarkText")
+
+        -- ANIMAÇÃO ENTRADA
+        CreateTween({Frame, "Position", UDim2.new(1, -10, 1, -40 - ((Index - 1) * 80)), 0.35})
+
+        task.delay(Duration, function()
+            -- SAÍDA
+            CreateTween({Frame, "Position", UDim2.new(1, 320, Frame.Position.Y.Scale, Frame.Position.Y.Offset), 0.35})
+            task.wait(0.4)
+            Gui:Destroy()
+        end)
+    end
+end
+	
 function redzlib:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
