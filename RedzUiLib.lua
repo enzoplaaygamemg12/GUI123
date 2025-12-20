@@ -1204,9 +1204,16 @@ local function AddEle(Name, Func)
 	redzlib.Elements[Name] = Func
 end
 
-local function Make(Ele, Instance, props, ...)
-	local Element = redzlib.Elements[Ele](Instance, props, ...)
-	return Element
+local function Make(Ele, Instance, Props, ...)
+    local Element = redzlib.Elements[Ele](Instance, Props, ...)
+    
+    -- PROTEÇÃO: se Props não for table, ignora
+    if type(Props) ~= "table" then
+        return Element
+    end
+
+    SetProps(Element, Props)
+    return Element
 end
 
 AddEle("Corner", function(parent, CornerRadius)
@@ -1437,8 +1444,10 @@ function redzlib:Notify(ScreenGui, Configs)
 		BackgroundTransparency = 0.05,
 		ZIndex = 100
 	}), "Frame")
-
-	Make("Corner", Frame, UDim.new(0,8))
+		
+	Make("Corner", Frame, {
+        CornerRadius = UDim.new(0,8)
+    })
 
 	local Stroke = Make("Stroke", Frame)
 	Stroke.Color = Colors[Type] or Colors.info
