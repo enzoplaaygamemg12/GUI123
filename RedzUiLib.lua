@@ -10,6 +10,22 @@ local PlayerMouse = Player:GetMouse()
 
 local redzlib = {
 	Themes = {
+		Black = {
+            ["Color Hub 1"] = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
+                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(18, 18, 18)),
+                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
+            }),
+
+            ["Color Hub 2"] = Color3.fromRGB(12, 12, 12),
+            ["Color Stroke"] = Color3.fromRGB(30, 30, 30),
+
+            -- cor principal (não afeta seu toggle vermelho)
+            ["Color Theme"] = Color3.fromRGB(120, 120, 120),
+
+            ["Color Text"] = Color3.fromRGB(245, 245, 245),
+            ["Color Dark Text"] = Color3.fromRGB(160, 160, 160)
+        },
 		Darker = {
 			["Color Hub 1"] = ColorSequence.new({
 				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
