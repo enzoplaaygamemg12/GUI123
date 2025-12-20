@@ -2003,18 +2003,18 @@ function redzlib:MakeWindow(Configs)
 				Size = UDim2.new(0, 35, 0, 18),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundTransparency = 1,
 				BackgroundColor3 = Theme["Color Hub 2"]
 			})
 			
 			Make("Corner", ToggleHolder, UDim.new(0.5, 0))
 
             -- Stroke manual
-            local Stroke = Instance.new("UIStroke")
-            Stroke.Parent = ToggleHolder
-            Stroke.Thickness = 1.5
-            Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            Stroke.LineJoinMode = Enum.LineJoinMode.Round
+            local HolderStroke = Instance.new("UIStroke")
+            HolderStroke.Parent = ToggleHolder
+            HolderStroke.Thickness = 1.5
+            HolderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            HolderStroke.LineJoinMode = Enum.LineJoinMode.Round
+            HolderStroke.Color = Theme["Color Stroke"] -- vermelho fixo
 
 			local NeutralStroke = Theme["Color Dark Text"]
 			
