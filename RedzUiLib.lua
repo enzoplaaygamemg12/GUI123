@@ -1438,7 +1438,7 @@ function redzlib:Notify(ScreenGui, Configs)
 		ZIndex = 100
 	}), "Frame")
 
-	Make("Corner", Frame, {Radius = UDim.new(0,8)})
+	Make("Corner", Frame, UDim.new(0,8))
 
 	local Stroke = Make("Stroke", Frame)
 	Stroke.Color = Colors[Type] or Colors.info
