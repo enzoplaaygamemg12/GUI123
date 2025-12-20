@@ -1216,11 +1216,19 @@ local function Make(Ele, Instance, Props, ...)
     return Element
 end
 
-AddEle("Corner", function(parent, CornerRadius)
-	local New = SetProps(Create("UICorner", parent, {
-		CornerRadius = CornerRadius or UDim.new(0, 7)
-	}), props)
-	return New
+AddEle("Corner", function(parent, props, ...)
+    local radius = UDim.new(0, 8)
+
+    if type(props) == "table" and props.CornerRadius then
+        radius = props.CornerRadius
+        props = nil -- impede SetProps de tentar aplicar CornerRadius
+    end
+
+    local New = Create("UICorner", parent, {
+        CornerRadius = radius
+    })
+
+    return New
 end)
 
 AddEle("Stroke", function(parent, props, ...)
@@ -1459,6 +1467,7 @@ function redzlib:Notify(ScreenGui, Configs)
 		Position = UDim2.fromOffset(12, 12),
 		BackgroundTransparency = 1,
 		Image = redzlib:GetIcon(Icon)
+		IconImg.ZIndex = 101
 	})
 
 	-- Título
@@ -1470,6 +1479,7 @@ function redzlib:Notify(ScreenGui, Configs)
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(40, 8),
 		Size = UDim2.new(1, -50, 0, 18)
+		TitleLabel.ZIndex = 101
 	}), "Text")
 
 	-- Texto
@@ -1483,6 +1493,7 @@ function redzlib:Notify(ScreenGui, Configs)
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(40, 28),
 		Size = UDim2.new(1, -50, 0, 30)
+		TextLabel.ZIndex = 101
 	}), "DarkText")
 
 	-- adiciona no stack
