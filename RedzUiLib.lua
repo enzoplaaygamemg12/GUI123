@@ -2033,7 +2033,15 @@ function redzlib:MakeWindow(Configs)
 			})
 				
 			Make("Corner", ToggleCircle, UDim.new(0.5, 0))
-			
+
+			-- Stroke da bolinha
+            local BallStroke = Instance.new("UIStroke")
+            BallStroke.Parent = ToggleCircle
+            BallStroke.Thickness = 1
+            BallStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            BallStroke.LineJoinMode = Enum.LineJoinMode.Round
+            BallStroke.Color = Theme["Color Stroke"]
+
 			local Busy = false
 			
 			local function SetToggle(state)
@@ -2048,12 +2056,18 @@ function redzlib:MakeWindow(Configs)
                 Funcs:FireCallback(Callback, state)
 
                 if state then
+                    -- ON
                     Stroke.Color = NeutralStroke
+                    BallStroke.Color = Color3.fromRGB(40, 200, 40)
+
                     CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(40, 200, 40), 0.2})
                     CreateTween({ToggleCircle, "Position", UDim2.new(1, 0, 0.5), 0.25})
                     CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
                 else
+                    -- OFF
                     Stroke.Color = Theme["Color Stroke"]
+                    BallStroke.Color = Theme["Color Stroke"]
+
                     CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.2})
                     CreateTween({ToggleCircle, "Position", UDim2.new(0, 0, 0.5), 0.25})
                     CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
