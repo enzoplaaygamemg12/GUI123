@@ -2199,7 +2199,7 @@ function redzlib:MakeWindow(Configs)
                 Busy = true
 				
                 Default = state
-				if flag then
+				if Flag then
                     SetFlag(Flag, state)
 				end
 				
@@ -2207,7 +2207,7 @@ function redzlib:MakeWindow(Configs)
 
                 if state then
                     -- ON
-                    Stroke.Color = NeutralStroke
+                    HolderStroke.Color = NeutralStroke
                     BallStroke.Color = Color3.fromRGB(40, 200, 40)
 
                     CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(40, 200, 40), 0.2})
@@ -2215,7 +2215,7 @@ function redzlib:MakeWindow(Configs)
                     CreateTween({ToggleCircle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
                 else
                     -- OFF
-                    Stroke.Color = Theme["Color Stroke"]
+                    HolderStroke.Color = Theme["Color Stroke"]
                     BallStroke.Color = Theme["Color Stroke"]
 
                     CreateTween({ToggleCircle, "BackgroundColor3", Color3.fromRGB(220, 40, 40), 0.2})
