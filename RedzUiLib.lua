@@ -1421,6 +1421,17 @@ function redzlib:SetTheme(NewTheme)
 	end)
 end
 
+local NotifyGui = CoreGui:FindFirstChild("ReduxNotifyGui")
+
+if not NotifyGui then
+	NotifyGui = Instance.new("ScreenGui")
+	NotifyGui.Name = "ReduxNotifyGui"
+	NotifyGui.IgnoreGuiInset = true
+	NotifyGui.ResetOnSpawn = false
+	NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+	NotifyGui.Parent = CoreGui
+end
+
 do
     local NotifyCount = 0
 
@@ -1442,16 +1453,13 @@ do
         NotifyCount += 1
         local Index = NotifyCount
 
-        local Gui = Instance.new("ScreenGui")
-        Gui.IgnoreGuiInset = true
-        Gui.ResetOnSpawn = false
-        Gui.Parent = game:GetService("CoreGui")
+	    local Gui = NotifyGui
 
         local Main = Create("Frame", Gui, {
             Size = UDim2.new(0, 320, 0, 64),
             Position = UDim2.new(1, 350, 1, -20 - ((Index - 1) * 72)),
             AnchorPoint = Vector2.new(1, 1),
-            BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+            BackgroundColor3 = Theme["Color Hub 2"]
         })
 
         Make("Corner", Main, UDim.new(0, 8))
@@ -1469,7 +1477,27 @@ do
             Position = UDim2.new(0, 10, 0.5, 0),
             AnchorPoint = Vector2.new(0, 0.5)
         })
+		Make("Corner", Icon, UDim.new(0, 6))
 
+        local IconStroke = Instance.new("UIStroke")
+        IconStroke.Color = StrokeColor
+        IconStroke.Thickness = 1
+        IconStroke.Parent = Icon
+
+		local TitleLabel = Create("TextLabel", Main, {
+	        Text = "Redux Hub Notification",
+	        Font = Enum.Font.GothamBold,
+	        TextSize = 10,
+	        BackgroundTransparency = 1,
+	        TextXAlignment = Right,
+	        TextYAlignment = Center,
+	        Size = UDim2.new(0, 180, 0, 14),
+	        Position = UDim2.new(1, -8, 0, 6),
+	        AnchorPoint = Vector2.new(1, 0),
+	        TextColor3 = StrokeColor,
+	        ZIndex = 10
+        })
+		
         -- TEXT
         local TextLabel = Create("TextLabel", Main, {
             Text = Text,
