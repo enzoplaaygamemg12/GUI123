@@ -1421,74 +1421,110 @@ function redzlib:SetTheme(NewTheme)
 	end)
 end
 
-dow
-    local Notifications = {}
-    local NotifyIndex = 0
+do
+    local NotifyCount = 0
+
+    local NotifyColors = {
+        error = Color3.fromRGB(220, 60, 60),
+        warning = Color3.fromRGB(240, 200, 60),
+        success = Color3.fromRGB(80, 200, 120)
+    }
 
     function redzlib:Notify(Configs)
         Configs = Configs or {}
 
-        local Title = Configs.Title or Configs[1] or "Notification"
-        local Content = Configs.Content or Configs[2] or ""
-        local Duration = Configs.Time or Configs.Duration or 3
+        local Type = string.lower(Configs.Type or "success")
+        local Text = Configs.Text or "Notification"
+        local Duration = Configs.Time or 3
 
-        NotifyIndex += 1
-        local Index = NotifyIndex
+        local StrokeColor = NotifyColors[Type] or NotifyColors.success
+
+        NotifyCount += 1
+        local Index = NotifyCount
 
         local Gui = Instance.new("ScreenGui")
-        Gui.Name = "RedzNotify"
         Gui.IgnoreGuiInset = true
         Gui.ResetOnSpawn = false
         Gui.Parent = game:GetService("CoreGui")
 
-        local Frame = Create("Frame", Gui, {
-            Size = UDim2.new(0, 280, 0, 70),
-            Position = UDim2.new(1, 320, 1, -40 - ((Index - 1) * 80)),
+        local Main = Create("Frame", Gui, {
+            Size = UDim2.new(0, 320, 0, 64),
+            Position = UDim2.new(1, 350, 1, -20 - ((Index - 1) * 72)),
             AnchorPoint = Vector2.new(1, 1),
-            BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+            BackgroundColor3 = Color3.fromRGB(18, 18, 18)
         })
 
-        Make("Corner", Frame, UDim.new(0, 8))
-        InsertTheme(Frame, "Frame")
+        Make("Corner", Main, UDim.new(0, 8))
+        InsertTheme(Main, "Frame")
 
-        local Stroke = Instance.new("UIStroke", Frame)
-        Stroke.Thickness = 1.5
-        Stroke.Color = Color3.fromRGB(220, 60, 60)
+        local Stroke = Instance.new("UIStroke", Main)
+        Stroke.Thickness = 1.6
+        Stroke.Color = StrokeColor
 
-        local TitleLabel = Create("TextLabel", Frame, {
-            Text = Title,
-            Font = Enum.Font.GothamBold,
-            TextSize = 13,
-            TextXAlignment = Left,
+        -- ICON
+        local Icon = Create("ImageLabel", Main, {
+            Image = "rbxassetid://136890966680929",
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -16, 0, 20),
-            Position = UDim2.new(0, 8, 0, 6),
-            TextColor3 = Color3.fromRGB(245,245,245)
+            Size = UDim2.new(0, 32, 0, 32),
+            Position = UDim2.new(0, 10, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5)
         })
 
-        InsertTheme(TitleLabel, "Text")
-
-        local ContentLabel = Create("TextLabel", Frame, {
-            Text = Content,
+        -- TEXT
+        local TextLabel = Create("TextLabel", Main, {
+            Text = Text,
             Font = Enum.Font.Gotham,
-            TextSize = 11,
+            TextSize = 12,
             TextWrapped = true,
-            TextYAlignment = Top,
             TextXAlignment = Left,
+            TextYAlignment = Center,
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -16, 0, 36),
-            Position = UDim2.new(0, 8, 0, 28),
-            TextColor3 = Color3.fromRGB(180,180,180)
+            Size = UDim2.new(1, -110, 1, -16),
+            Position = UDim2.new(0, 52, 0, 8),
+            TextColor3 = Color3.fromRGB(235,235,235)
         })
 
-        InsertTheme(ContentLabel, "DarkText")
+        InsertTheme(TextLabel, "Text")
+
+        -- TIME LABEL
+        local TimeLabel = Create("TextLabel", Main, {
+            Text = string.format("%.1fs", Duration),
+            Font = Enum.Font.GothamBold,
+            TextSize = 11,
+            BackgroundTransparency = 1,
+            TextXAlignment = Right,
+            Size = UDim2.new(0, 50, 0, 16),
+            Position = UDim2.new(1, -10, 0, 6),
+            AnchorPoint = Vector2.new(1, 0),
+            TextColor3 = StrokeColor
+        })
 
         -- ANIMAÇÃO ENTRADA
-        CreateTween({Frame, "Position", UDim2.new(1, -10, 1, -40 - ((Index - 1) * 80)), 0.35})
+        CreateTween({
+            Main,
+            "Position",
+            UDim2.new(1, -12, 1, -20 - ((Index - 1) * 72)),
+            0.35
+        })
 
+        -- CONTADOR DE TEMPO
+        task.spawn(function()
+            local Start = tick()
+            while tick() - Start < Duration do
+                local Left = Duration - (tick() - Start)
+                TimeLabel.Text = string.format("%.1fs", math.max(0, Left))
+                task.wait(0.1)
+            end
+        end)
+
+        -- SAÍDA
         task.delay(Duration, function()
-            -- SAÍDA
-            CreateTween({Frame, "Position", UDim2.new(1, 320, Frame.Position.Y.Scale, Frame.Position.Y.Offset), 0.35})
+            CreateTween({
+                Main,
+                "Position",
+                UDim2.new(1, 350, Main.Position.Y.Scale, Main.Position.Y.Offset),
+                0.35
+            })
             task.wait(0.4)
             Gui:Destroy()
         end)
