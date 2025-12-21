@@ -1395,6 +1395,83 @@ function redzlib:SetTheme(NewTheme)
 	end)
 end
 
+do
+    local TweenService = game:GetService("TweenService")
+    local CoreGui = game:GetService("CoreGui")
+
+    local Stack = 0
+
+    local Types = {
+        success = Color3.fromRGB(70, 200, 120),
+        error   = Color3.fromRGB(220, 70, 70),
+        warning = Color3.fromRGB(230, 200, 70)
+    }
+
+    function redzlib:Notify(cfg)
+        cfg = cfg or {}
+
+        local text = tostring(cfg.Text or "Notification")
+        local time = tonumber(cfg.Time) or 3
+        local kind = string.lower(cfg.Type or "success")
+
+        local color = Types[kind] or Types.success
+        Stack += 1
+
+        local gui = Instance.new("ScreenGui")
+        gui.Name = "RedzNotify_" .. Stack
+        gui.IgnoreGuiInset = true
+        gui.ResetOnSpawn = false
+        gui.Parent = CoreGui
+
+        local frame = Instance.new("Frame", gui)
+        frame.Size = UDim2.fromOffset(320, 60)
+        frame.Position = UDim2.new(1, 360, 1, -20 - ((Stack - 1) * 70))
+        frame.AnchorPoint = Vector2.new(1, 1)
+        frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+        local stroke = Instance.new("UIStroke", frame)
+        stroke.Color = color
+        stroke.Thickness = 1.5
+
+        local title = Instance.new("TextLabel", frame)
+        title.BackgroundTransparency = 1
+        title.Text = "Redux Hub"
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 11
+        title.TextColor3 = color
+        title.Position = UDim2.fromOffset(14, 6)
+        title.Size = UDim2.new(1, -20, 0, 14)
+        title.TextXAlignment = Left
+
+        local msg = Instance.new("TextLabel", frame)
+        msg.BackgroundTransparency = 1
+        msg.TextWrapped = true
+        msg.Text = text
+        msg.Font = Enum.Font.Gotham
+        msg.TextSize = 12
+        msg.TextColor3 = Color3.fromRGB(235,235,235)
+        msg.Position = UDim2.fromOffset(14, 22)
+        msg.Size = UDim2.new(1, -20, 1, -26)
+        msg.TextXAlignment = Left
+        msg.TextYAlignment = Top
+
+        TweenService:Create(frame, TweenInfo.new(0.3), {
+            Position = UDim2.new(1, -12, frame.Position.Y.Scale, frame.Position.Y.Offset)
+        }):Play()
+
+        task.delay(time, function()
+            TweenService:Create(frame, TweenInfo.new(0.3), {
+                Position = UDim2.new(1, 360, frame.Position.Y.Scale, frame.Position.Y.Offset)
+            }):Play()
+            task.wait(0.35)
+            gui:Destroy()
+            Stack -= 1
+        end)
+    end
+end
+	
 function redzlib:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
