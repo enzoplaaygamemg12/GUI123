@@ -1507,7 +1507,7 @@ do
             TextXAlignment = Left,
             TextYAlignment = Center,
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -110, 1, -16),
+            Size = UDim2.new(1, -140, 1, -16),
             Position = UDim2.new(0, 52, 0, 8),
             TextColor3 = Color3.fromRGB(235,235,235)
         })
