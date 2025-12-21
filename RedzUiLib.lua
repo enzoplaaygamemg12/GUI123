@@ -1459,7 +1459,7 @@ do
             Size = UDim2.new(0, 320, 0, 64),
             Position = UDim2.new(1, 350, 1, -20 - ((Index - 1) * 72)),
             AnchorPoint = Vector2.new(1, 1),
-            BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         })
 
         Make("Corner", Main, UDim.new(0, 8))
