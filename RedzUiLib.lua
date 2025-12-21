@@ -10,29 +10,13 @@ local PlayerMouse = Player:GetMouse()
 
 local redzlib = {
 	Themes = {
-		Black = {
-            ["Color Hub 1"] = ColorSequence.new({
-                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
-                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(18, 18, 18)),
-                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
-            }),
-
-            ["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
-            ["Color Stroke"] = Color3.fromRGB(30, 30, 30),
-
-            -- cor principal (não afeta seu toggle vermelho)
-            ["Color Theme"] = Color3.fromRGB(120, 120, 120),
-
-            ["Color Text"] = Color3.fromRGB(245, 245, 245),
-            ["Color Dark Text"] = Color3.fromRGB(160, 160, 160)
-        },
 		Darker = {
 			["Color Hub 1"] = ColorSequence.new({
 				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
 				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32.5, 32.5, 32.5)),
 				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
 			}),
-			["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
+			["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
 			["Color Stroke"] = Color3.fromRGB(40, 40, 40),
 			["Color Theme"] = Color3.fromRGB(88, 101, 242),
 			["Color Text"] = Color3.fromRGB(243, 243, 243),
@@ -44,7 +28,7 @@ local redzlib = {
 				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(47.5, 47.5, 47.5)),
 				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(40, 40, 40))
 			}),
-			["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
+			["Color Hub 2"] = Color3.fromRGB(45, 45, 45),
 			["Color Stroke"] = Color3.fromRGB(65, 65, 65),
 			["Color Theme"] = Color3.fromRGB(65, 150, 255),
 			["Color Text"] = Color3.fromRGB(245, 245, 245),
@@ -56,7 +40,7 @@ local redzlib = {
 				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32.5, 32.5, 32.5)),
 				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(27.5, 25, 30))
 			}),
-			["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
+			["Color Hub 2"] = Color3.fromRGB(30, 30, 30),
 			["Color Stroke"] = Color3.fromRGB(40, 40, 40),
 			["Color Theme"] = Color3.fromRGB(150, 0, 255),
 			["Color Text"] = Color3.fromRGB(240, 240, 240),
@@ -1140,20 +1124,18 @@ local function ConnectSave(Instance, func)
 end
 
 local function CreateTween(Configs)
-	local Instance = Configs[1]
-	local Prop = Configs[2]
-	local NewVal = Configs[3]
-	local Time = Configs[4] or 0.25
-	local Wait = Configs[5] or false
-
-	local Tween = TweenService:Create(
-		Instance,
-		TweenInfo.new(Time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-		{[Prop] = NewVal}
-	)
-
+	local Instance = Configs[1] or Configs.Instance
+	local Prop = Configs[2] or Configs.Prop
+	local NewVal = Configs[3] or Configs.NewVal
+	local Time = Configs[4] or Configs.Time or 0.5
+	local TweenWait = Configs[5] or Configs.wait or false
+	local TweenInfo = TweenInfo.new(Time, Enum.EasingStyle.Quint)
+	
+	local Tween = TweenService:Create(Instance, TweenInfo, {[Prop] = NewVal})
 	Tween:Play()
-	if Wait then Tween.Completed:Wait() end
+	if TweenWait then
+		Tween.Completed:Wait()
+	end
 	return Tween
 end
 
@@ -1392,133 +1374,27 @@ function redzlib:SetTheme(NewTheme)
 	redzlib.Save.Theme = NewTheme
 	SaveJson("redz library V5.json", redzlib.Save)
 	Theme = redzlib.Themes[NewTheme]
-
-	-- ATUALIZA TODAS AS INSTÂNCIAS REGISTRADAS
-	table.foreach(redzlib.Instances, function(_, Val)
-		if not Val.Instance or not Val.Instance.Parent then return end
-
+	
+	Comnection:FireConnection("ThemeChanged", NewTheme)
+	table.foreach(redzlib.Instances, function(_,Val)
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
-
 		elseif Val.Type == "Frame" then
 			Val.Instance.BackgroundColor3 = Theme["Color Hub 2"]
-
 		elseif Val.Type == "Stroke" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Stroke"]
-
 		elseif Val.Type == "Theme" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
-
 		elseif Val.Type == "Text" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Text"]
-
 		elseif Val.Type == "DarkText" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Dark Text"]
-
 		elseif Val.Type == "ScrollBar" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
 		end
 	end)
 end
 
-local NotifyGui = CoreGui:FindFirstChild("ReduxNotifyGui")
-
-if not NotifyGui then
-	NotifyGui = Instance.new("ScreenGui")
-	NotifyGui.Name = "ReduxNotifyGui"
-	NotifyGui.IgnoreGuiInset = true
-	NotifyGui.ResetOnSpawn = false
-	NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-	NotifyGui.Parent = CoreGui
-end
-
-function redzlib:Notify(cfg)
-    cfg = cfg or {}
-
-    local TitleText = cfg.Title or "Redux Hub Notification"
-    local Message = cfg.Text or "Notification"
-    local Duration = tonumber(cfg.Time) or 3
-    local Type = (cfg.Type or "success"):lower()
-
-    local StrokeColors = {
-        success = Color3.fromRGB(80,200,120),
-        warning = Color3.fromRGB(240,200,60),
-        error   = Color3.fromRGB(220,60,60)
-    }
-
-    local StrokeColor = StrokeColors[Type] or StrokeColors.success
-
-    local CoreGui = game:GetService("CoreGui")
-
-    local Gui = Instance.new("ScreenGui")
-    Gui.Name = "ReduxNotify"
-    Gui.ResetOnSpawn = false
-    Gui.IgnoreGuiInset = true
-    Gui.Parent = CoreGui
-
-    local Main = Instance.new("Frame")
-    Main.Parent = Gui
-    Main.Size = UDim2.new(0, 330, 0, 78)
-    Main.Position = UDim2.new(1, -360, 1, -120)
-    Main.BackgroundColor3 = Color3.fromRGB(15,15,15)
-    Main.ZIndex = 10
-
-    Instance.new("UICorner", Main).CornerRadius = UDim.new(0,8)
-
-    local Stroke = Instance.new("UIStroke", Main)
-    Stroke.Color = StrokeColor
-    Stroke.Thickness = 1.5
-
-    -- ICON
-    local Icon = Instance.new("ImageLabel", Main)
-    Icon.Image = "rbxassetid://136890966680929"
-    Icon.BackgroundTransparency = 1
-    Icon.Size = UDim2.new(0, 32, 0, 32)
-    Icon.Position = UDim2.new(0, 10, 0.5, 0)
-    Icon.AnchorPoint = Vector2.new(0, 0.5)
-    Icon.ZIndex = 11
-
-    Instance.new("UICorner", Icon).CornerRadius = UDim.new(0,6)
-
-    -- TITLE
-    local Title = Instance.new("TextLabel", Main)
-    Title.Text = TitleText
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 12
-    Title.TextColor3 = StrokeColor
-    Title.BackgroundTransparency = 1
-    Title.Position = UDim2.new(0, 54, 0, 6)
-    Title.Size = UDim2.new(1, -70, 0, 18)
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.ZIndex = 11
-
-    -- MESSAGE
-    local Text = Instance.new("TextLabel", Main)
-    Text.Text = Message
-    Text.Font = Enum.Font.Gotham
-    Text.TextSize = 11
-    Text.TextWrapped = true
-    Text.TextColor3 = Color3.fromRGB(235,235,235)
-    Text.BackgroundTransparency = 1
-    Text.Position = UDim2.new(0, 54, 0, 28)
-    Text.Size = UDim2.new(1, -70, 0, 36)
-    Text.TextXAlignment = Enum.TextXAlignment.Left
-    Text.TextYAlignment = Enum.TextYAlignment.Top
-    Text.ZIndex = 11
-
-    -- ANIMAÇÃO SIMPLES (SAFE)
-    Main.Position = UDim2.new(1, 360, 1, -120)
-    task.wait()
-    Main.Position = UDim2.new(1, -20, 1, -120)
-
-    -- AUTO DESTROY GARANTIDO
-    task.delay(Duration, function()
-        if Gui and Gui.Parent then
-            Gui:Destroy()
-        end
-    end)
-end	
-	
 function redzlib:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
@@ -2104,101 +1980,97 @@ function redzlib:MakeWindow(Configs)
 			return Button
 		end
 		function Tab:AddToggle(Configs)
-            local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
-            local TDesc = Configs.Desc or Configs.Description or ""
-            local Callback = Funcs:GetCallback(Configs, 3)
-            local Flag = Configs[4] or Configs.Flag or false
-            local Default = Configs[2] or Configs.Default or false
-            if CheckFlag(Flag) then Default = GetFlag(Flag) end
+			local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
+			local TDesc = Configs.Desc or Configs.Description or ""
+			local Callback = Funcs:GetCallback(Configs, 3)
+			local Flag = Configs[4] or Configs.Flag or false
+			local Default = Configs[2] or Configs.Default or false
+			if CheckFlag(Flag) then Default = GetFlag(Flag) end
+			
+			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
+			
+            local ToggleHolder = Create("Frame", Button, {
+	            Size = UDim2.new(0, 35, 0, 18),
+	            Position = UDim2.new(1, -10, 0.5),
+	            AnchorPoint = Vector2.new(1, 0.5),
+	            BackgroundTransparency = 1
+            })
 
-           local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
+            Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+                
+                Make("Stroke", ToggleHolder, {
+	            Color = Color3.fromRGB(255, 0, 0),
+	            Thickness = 1
+            })
+			
+			local Slider = Create("Frame", ToggleHolder, {
+	            BackgroundTransparency = 1,
+	            Size = UDim2.new(0.8, 0, 0.8, 0),
+	            Position = UDim2.new(0.5, 0, 0.5, 0),
+	            AnchorPoint = Vector2.new(0.5, 0.5)
+            })
+			
+			local ToggleBall = Create("Frame", Slider, {
+	            Size = UDim2.new(0, 12, 0, 12),
+	            Position = UDim2.new(0, 0, 0.5),
+	            AnchorPoint = Vector2.new(0, 0.5),
+	            BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            })
 
-           -- Holder (fundo transparente)
-           local ToggleHolder = Create("Frame", Button, {
-               Size = UDim2.new(0, 35, 0, 18),
-               Position = UDim2.new(1, -10, 0.5),
-               AnchorPoint = Vector2.new(1, 0.5),
-               BackgroundTransparency = 1
-           })
-           Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+            Make("Corner", ToggleBall, UDim.new(0.5, 0))
+				
+			local WaitClick
+            local function SetToggle(Val)
+	            if WaitClick then return end
 
-           -- Stroke vermelho fixo
-           local Stroke = Create("UIStroke", ToggleHolder, {
-               Color = TOGGLE_RED,
-               Thickness = 1.5,
-               ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-           })
+	            WaitClick = true
+	            Default = Val
 
-           local Slider = Create("Frame", ToggleHolder, {
-               BackgroundTransparency = 1,
-               Size = UDim2.new(0.8, 0, 0.8, 0),
-               Position = UDim2.new(0.5, 0, 0.5, 0),
-               AnchorPoint = Vector2.new(0.5, 0.5)
-           })
+	            SetFlag(Flag, Default)
+	            Funcs:FireCallback(Callback, Default)
 
-           -- Bolinha vermelha fixa
-           local Circle = Create("Frame", Slider, {
-               Size = UDim2.new(0, 12, 0, 12),
-               Position = UDim2.new(0, 4, 0.5, -6),
-               BackgroundColor3 = TOGGLE_RED
-           })
-           Make("Corner", Circle, UDim.new(0.5, 0))
+                if Default then
+		            -- LIGADO (verde, direita)
+		            CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
+		            CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
+		            CreateTween({Toggle, "BackgroundColor3", Color3.fromRGB(0, 255, 0), 0.25})
+	            else
+		            -- DESLIGADO (vermelho, esquerda)
+		            CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
+		            CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
+		            CreateTween({Toggle, "BackgroundColor3", Color3.fromRGB(255, 0, 0), 0.25})
+	            end
 
-           local WaitClick
-           local function SetToggle(Value)
-               if WaitClick then return end
-               WaitClick, Default = true, Value
-
-               SetFlag(Flag, Default)
-               Funcs:FireCallback(Callback, Default)
-
-               if Default then
-                   CreateTween({
-                       Circle,
-                       "Position",
-                       UDim2.new(1, -Circle.Size.X.Offset - 4, 0.5, -6),
-                       0.25
-                   })
-               else
-                   CreateTween({
-                       Circle,
-                       "Position",
-                       UDim2.new(0, 4, 0.5, -6),
-                       0.25
-                   })
-               end
-
-               WaitClick = false
-           end
-
-			task.spawn(SetToggle, Default)
-            
-            Button.Activated:Connect(function()
-                SetToggle(not Default)
-            end)
-
-            local Toggle = {}
-            function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
-            function Toggle:Destroy() Button:Destroy() end
-            function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)(Default) end
-            function Toggle:Set(Val1, Val2)
-                if type(Val1) == "string" and type(Val2) == "string" then
-                    LabelFunc:SetTitle(Val1)
-                    LabelFunc:SetDesc(Val2)
-                elseif type(Val1) == "string" then
-                    LabelFunc:SetTitle(Val1, false, true)
-                elseif type(Val1) == "boolean" then
-                    if WaitClick and Val2 then
-                        repeat task.wait() until not WaitClick
-                    end
-                    task.spawn(SetToggle, Val1)
-                elseif type(Val1) == "function" then
-                    Callback = Val1
-                end
+	            WaitClick = false
             end
 
-            return Toggle
-        end
+            task.spawn(SetToggle, Default)
+			
+			Button.Activated:Connect(function()
+				SetToggle(not Default)
+			end)
+			
+			local Toggle = {}
+			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
+			function Toggle:Destroy() Button:Destroy() end
+			function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
+			function Toggle:Set(Val1, Val2)
+				if type(Val1) == "string" and type(Val2) == "string" then
+					LabelFunc:SetTitle(Val1)
+					LabelFunc:SetDesc(Val2)
+				elseif type(Val1) == "string" then
+					LabelFunc:SetTitle(Val1, false, true)
+				elseif type(Val1) == "boolean" then
+					if WaitClick and Val2 then
+						repeat task.wait() until not WaitClick
+					end
+					task.spawn(SetToggle, Val1)
+				elseif type(Val1) == "function" then
+					Callback = Val1
+				end
+			end
+			return Toggle
+		end
 		function Tab:AddDropdown(Configs)
 			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
 			local DDesc = Configs.Desc or Configs.Description or ""
