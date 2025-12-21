@@ -1492,7 +1492,7 @@ do
 	        TextXAlignment = Right,
 	        TextYAlignment = Center,
 	        Size = UDim2.new(0, 210, 0, 14),
-	        Position = UDim2.new(1, -8, 0, 6),
+	        Position = UDim2.new(1, -6, 0, 6),
 	        AnchorPoint = Vector2.new(1, 0),
 	        TextColor3 = StrokeColor,
 	        ZIndex = 10
