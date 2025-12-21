@@ -17,7 +17,7 @@ local redzlib = {
                 ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
             }),
 
-            ["Color Hub 2"] = Color3.fromRGB(12, 12, 12),
+            ["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
             ["Color Stroke"] = Color3.fromRGB(30, 30, 30),
 
             -- cor principal (não afeta seu toggle vermelho)
@@ -44,7 +44,7 @@ local redzlib = {
 				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(47.5, 47.5, 47.5)),
 				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(40, 40, 40))
 			}),
-			["Color Hub 2"] = Color3.fromRGB(45, 45, 45),
+			["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
 			["Color Stroke"] = Color3.fromRGB(65, 65, 65),
 			["Color Theme"] = Color3.fromRGB(65, 150, 255),
 			["Color Text"] = Color3.fromRGB(245, 245, 245),
@@ -56,7 +56,7 @@ local redzlib = {
 				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32.5, 32.5, 32.5)),
 				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(27.5, 25, 30))
 			}),
-			["Color Hub 2"] = Color3.fromRGB(30, 30, 30),
+			["Color Hub 2"] = Color3.fromRGB(255, 255, 0),
 			["Color Stroke"] = Color3.fromRGB(40, 40, 40),
 			["Color Theme"] = Color3.fromRGB(150, 0, 255),
 			["Color Text"] = Color3.fromRGB(240, 240, 240),
