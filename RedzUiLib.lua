@@ -2031,13 +2031,15 @@ function redzlib:MakeWindow(Configs)
 	            Funcs:FireCallback(Callback, Default)
 
 	            if Default then
-		            -- ON (verde)
-		            Toggle.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
-		            CreateTween({Toggle, "Position", UDim2.new(1, -18, 0.5), 0.25})
-	            else
-		            -- OFF (vermelho)
+		            -- LIGADO (verde, direita)
+		            CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
+		            CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
 		            Toggle.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	            else
+		            -- DESLIGADO (vermelho, esquerda)
 		            CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
+		            CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
+		            Toggle.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 	            end
 
 	            WaitClick = false
