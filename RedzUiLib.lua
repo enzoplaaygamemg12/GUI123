@@ -1989,11 +1989,12 @@ function redzlib:MakeWindow(Configs)
 			
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
 			
+            -- HOLDER (área do toggle)
             local ToggleHolder = Create("Frame", Button, {
-	            Size = UDim2.new(0, 35, 0, 18),
-	            Position = UDim2.new(1, -10, 0.5),
-	            AnchorPoint = Vector2.new(1, 0.5),
-	            BackgroundTransparency = 1
+	           Size = UDim2.new(0, 42, 0, 20),
+	           Position = UDim2.new(1, -10, 0.5),
+	           AnchorPoint = Vector2.new(1, 0.5),
+	           BackgroundTransparency = 1
             })
 
             Make("Corner", ToggleHolder, UDim.new(0.5, 0))
@@ -2009,46 +2010,52 @@ function redzlib:MakeWindow(Configs)
 	            Position = UDim2.new(0.5, 0, 0.5, 0),
 	            AnchorPoint = Vector2.new(0.5, 0.5)
             })
-			
-			-- FRAME DA BOLINHA (ANTES DE TUDO)
-            local Toggle = Create("Frame", Button, {
-	            Size = UDim2.new(0, 18, 0, 18),
-	            Position = UDim2.new(0, 0, 0.5),
-	            AnchorPoint = Vector2.new(0, 0.5),
-	            BackgroundColor3 = Color3.fromRGB(200, 60, 60), -- vermelho OFF
-	            BackgroundTransparency = 0
+
+			-- TRILHO
+            local Track = Create("Frame", ToggleHolder, {
+	            Size = UDim2.new(1, 0, 1, 0),
+	            BackgroundTransparency = 1
             })
 
-            Make("Corner", Toggle, UDim.new(1, 0))
-            Make("Stroke", Toggle, nil, Color3.fromRGB(255, 0, 0), 1)
+			Make("Corner", Track, UDim.new(1, 0))
+            Make("Stroke", Track, nil, Color3.fromRGB(255, 0, 0), 1.5)
+			
+			-- BOLINHA
+            local Ball = Create("Frame", ToggleHolder, {
+	            Size = UDim2.new(0, 16, 0, 16),
+	            Position = UDim2.new(0, 2, 0.5),
+	            AnchorPoint = Vector2.new(0, 0.5),
+	            BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+            })
+
+            Make("Corner", Ball, UDim.new(1, 0))
 				
 			local WaitClick
-            local function SetToggle(Val)
-	            if WaitClick or not Toggle then return end
 
-	            WaitClick, Default = true, Val
-	            SetFlag(Flag, Default)
-	            Funcs:FireCallback(Callback, Default)
+            local function SetToggle(Value)
+	            if WaitClick then return end
+	            WaitClick = true
+	            Default = Value
 
-	            if Default then
-		            -- LIGADO (verde, direita)
-		            CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
-		            CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
-		            Toggle.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	            SetFlag(Flag, Value)
+	            Funcs:FireCallback(Callback, Value)
+
+	            if Value then
+		            -- ON
+		            CreateTween({Ball, "Position", UDim2.new(1, -18, 0.5), 0.25})
+		            Ball.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
 	            else
-		            -- DESLIGADO (vermelho, esquerda)
-		            CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
-		            CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
-		            Toggle.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+		            -- OFF
+		            CreateTween({Ball, "Position", UDim2.new(0, 2, 0.5), 0.25})
+		            Ball.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 	            end
 
 	            WaitClick = false
             end
 
-            -- AGORA SIM pode chamar
             task.spawn(function()
 	            task.wait()
-	            SetToggle(Default) 
+	            SetToggle(Default)
             end)
 
             Button.Activated:Connect(function()
