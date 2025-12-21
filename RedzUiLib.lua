@@ -1443,7 +1443,7 @@ do
         title.TextColor3 = color
         title.Position = UDim2.fromOffset(14, 6)
         title.Size = UDim2.new(1, -20, 0, 14)
-        title.Title.TextXAlignment = Enum.TextXAlignment.Left
+        title.TextXAlignment = Enum.TextXAlignment.Left
 
         local msg = Instance.new("TextLabel", frame)
         msg.BackgroundTransparency = 1
