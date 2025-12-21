@@ -2010,45 +2010,48 @@ function redzlib:MakeWindow(Configs)
 	            AnchorPoint = Vector2.new(0.5, 0.5)
             })
 			
-			local ToggleBall = Create("Frame", Slider, {
-	            Size = UDim2.new(0, 12, 0, 12),
+			-- FRAME DA BOLINHA (ANTES DE TUDO)
+            local Toggle = Create("Frame", Button, {
+	            Size = UDim2.new(0, 18, 0, 18),
 	            Position = UDim2.new(0, 0, 0.5),
 	            AnchorPoint = Vector2.new(0, 0.5),
-	            BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	            BackgroundColor3 = Color3.fromRGB(200, 60, 60), -- vermelho OFF
+	            BackgroundTransparency = 0
             })
 
-            Make("Corner", ToggleBall, UDim.new(0.5, 0))
+            Make("Corner", Toggle, UDim.new(1, 0))
+            Make("Stroke", Toggle, nil, Color3.fromRGB(255, 0, 0), 1)
 				
 			local WaitClick
             local function SetToggle(Val)
-	            if WaitClick then return end
+	            if WaitClick or not Toggle then return end
 
-	            WaitClick = true
-	            Default = Val
-
+	            WaitClick, Default = true, Val
 	            SetFlag(Flag, Default)
 	            Funcs:FireCallback(Callback, Default)
 
-                if Default then
-		            -- LIGADO (verde, direita)
-		            CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
-		            CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
-		            CreateTween({Toggle, "BackgroundColor3", Color3.fromRGB(0, 255, 0), 0.25})
+	            if Default then
+		            -- ON (verde)
+		            Toggle.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
+		            CreateTween({Toggle, "Position", UDim2.new(1, -18, 0.5), 0.25})
 	            else
-		            -- DESLIGADO (vermelho, esquerda)
+		            -- OFF (vermelho)
+		            Toggle.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 		            CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
-		            CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
-		            CreateTween({Toggle, "BackgroundColor3", Color3.fromRGB(255, 0, 0), 0.25})
 	            end
 
 	            WaitClick = false
             end
 
-            task.spawn(SetToggle, Default)
-			
-			Button.Activated:Connect(function()
-				SetToggle(not Default)
-			end)
+            -- AGORA SIM pode chamar
+            task.spawn(function()
+	            task.wait()
+	            SetToggle(Default) 
+            end)
+
+            Button.Activated:Connect(function()
+	            SetToggle(not Default)
+            end)
 			
 			local Toggle = {}
 			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
