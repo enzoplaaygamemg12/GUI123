@@ -1394,6 +1394,98 @@ function redzlib:SetTheme(NewTheme)
 		end
 	end)
 end
+	
+do
+    local TweenService = game:GetService("TweenService")
+    local CoreGui = game:GetService("CoreGui")
+
+    local NotifyIndex = 0
+
+    local Colors = {
+        success = Color3.fromRGB(70, 200, 120),
+        error   = Color3.fromRGB(220, 70, 70),
+        warning = Color3.fromRGB(230, 200, 70)
+    }
+
+    function redzlib:Notify(Configs)
+        Configs = Configs or {}
+
+        local Text = tostring(Configs.Text or "Notification")
+        local Time = tonumber(Configs.Time) or 3
+        local Type = string.lower(Configs.Type or "success")
+
+        local StrokeColor = Colors[Type] or Colors.success
+
+        NotifyIndex += 1
+
+        local Gui = Instance.new("ScreenGui")
+        Gui.Name = "ReduxNotify_" .. NotifyIndex
+        Gui.IgnoreGuiInset = true
+        Gui.ResetOnSpawn = false
+        Gui.Parent = CoreGui
+
+        local Frame = Instance.new("Frame")
+        Frame.Parent = Gui
+        Frame.Size = UDim2.new(0, 320, 0, 60)
+        Frame.Position = UDim2.new(1, 360, 1, -20 - ((NotifyIndex - 1) * 70))
+        Frame.AnchorPoint = Vector2.new(1, 1)
+        Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+
+        Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+
+        local Stroke = Instance.new("UIStroke", Frame)
+        Stroke.Thickness = 1.6
+        Stroke.Color = StrokeColor
+
+        local Icon = Instance.new("ImageLabel")
+        Icon.Parent = Frame
+        Icon.BackgroundTransparency = 1
+        Icon.Size = UDim2.new(0, 32, 0, 32)
+        Icon.Position = UDim2.new(0, 10, 0.5)
+        Icon.AnchorPoint = Vector2.new(0, 0.5)
+        Icon.Image = "rbxassetid://136890966680929"
+
+        Instance.new("UICorner", Icon).CornerRadius = UDim.new(0, 6)
+
+        local Title = Instance.new("TextLabel")
+        Title.Parent = Frame
+        Title.BackgroundTransparency = 1
+        Title.Text = "Redux Hub Notification"
+        Title.Font = Enum.Font.GothamBold
+        Title.TextSize = 11
+        Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.TextColor3 = StrokeColor
+        Title.Position = UDim2.new(0, 54, 0, 6)
+        Title.Size = UDim2.new(1, -120, 0, 14)
+
+        local Msg = Instance.new("TextLabel")
+        Msg.Parent = Frame
+        Msg.BackgroundTransparency = 1
+        Msg.TextWrapped = true
+        Msg.TextXAlignment = Enum.TextXAlignment.Left
+        Msg.TextYAlignment = Enum.TextYAlignment.Top
+        Msg.Font = Enum.Font.Gotham
+        Msg.TextSize = 12
+        Msg.TextColor3 = Color3.fromRGB(235, 235, 235)
+        Msg.Text = Text
+        Msg.Position = UDim2.new(0, 54, 0, 22)
+        Msg.Size = UDim2.new(1, -120, 1, -26)
+
+        TweenService:Create(Frame, TweenInfo.new(0.35), {
+            Position = UDim2.new(1, -12, Frame.Position.Y.Scale, Frame.Position.Y.Offset)
+        }):Play()
+
+        task.delay(Time, function()
+            TweenService:Create(Frame, TweenInfo.new(0.35), {
+                Position = UDim2.new(1, 360, Frame.Position.Y.Scale, Frame.Position.Y.Offset)
+            }):Play()
+            task.wait(0.4)
+            if Gui then
+                Gui:Destroy()
+            end
+        end)
+    end
+end
 
 function redzlib:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
@@ -2217,7 +2309,8 @@ function redzlib:MakeWindow(Configs)
 				CreateTween({DropFrame, "Position", NewPos, 0.1})
 			end
 			
-			local AddNewOptions, GetOptions, AddOption, RemoveOption, Selected do
+			local AddNewOptions, GetOptions, AddOption, RemoveOption
+            local Selected
 				local Default = type(OpDefault) ~= "table" and {OpDefault} or OpDefault
 				local MultiSelect = DMultiSelect
 				local Options = {}
@@ -2253,40 +2346,39 @@ function redzlib:MakeWindow(Configs)
 				end
 				
 				local function UpdateSelected()
-					if MultiSelect then
-						for _,v in pairs(Options) do
-							local nodes, Stats = v.nodes, v.Stats
-							CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 0.8, 0.35})
-							CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(4, 12) or UDim2.fromOffset(4, 4), 0.35})
-							CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.4, 0.35})
-						end
-					else
-						for _,v in pairs(Options) do
-							local Slt = v.Value == Selected
-							local nodes = v.nodes
-							CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.35})
-							CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(4, 14) or UDim2.fromOffset(4, 4), 0.35})
-							CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.4, 0.35})
-						end
-					end
-					UpdateLabel()
-				end
+	                if MultiSelect then
+		                for _,v in pairs(Options) do
+			                local nodes = v.nodes
+			                local active = Selected[v.Name] == true
+
+			                CreateTween({nodes[2], "BackgroundTransparency", active and 0 or 0.8, 0.25})
+			                CreateTween({nodes[2], "Size", active and UDim2.fromOffset(4, 12) or UDim2.fromOffset(4, 4), 0.25})
+			                CreateTween({nodes[3], "TextTransparency", active and 0 or 0.4, 0.25})
+		                end
+	                else
+		                for _,v in pairs(Options) do
+			                local nodes = v.nodes
+			                local active = v.Value == Selected
+                            
+			                CreateTween({nodes[2], "BackgroundTransparency", active and 0 or 1, 0.25})
+			                CreateTween({nodes[2], "Size", active and UDim2.fromOffset(4, 14) or UDim2.fromOffset(4, 4), 0.25})
+			                CreateTween({nodes[3], "TextTransparency", active and 0 or 0.4, 0.25})
+		                end
+	                end
+
+	                UpdateLabel()
+                end
 				
 				local function Select(Option)
-					if MultiSelect then
-						Option.Stats = not Option.Stats
-						Option.LastCB = tick()
-						
-						Selected[Option.Name] = Option.Stats
-						CallbackSelected()
-					else
-						Option.LastCB = tick()
-						
-						Selected = Option.Value
-						CallbackSelected()
-					end
-					UpdateSelected()
-				end
+	                if MultiSelect then
+		                Selected[Option.Name] = not Selected[Option.Name]
+	                else
+		                Selected = Option.Value
+	                end
+
+	                CallbackSelected()
+	                UpdateSelected()
+                end
 				
 				AddOption = function(index, Value)
 					local Name = tostring(type(index) == "string" and index or Value)
@@ -2407,13 +2499,13 @@ function redzlib:MakeWindow(Configs)
 				if type(Option) == "string" then
 					for _,Val in pairs(Options) do
 						if Val.Name == Option then
-							Val.Active()
+							Select(Val)
 						end
 					end
 				elseif type(Option) == "number" then
 					for ind,Val in pairs(Options) do
 						if ind == Option then
-							Val.Active()
+							Select(Val)
 						end
 					end
 				end
