@@ -1443,7 +1443,7 @@ do
         title.TextColor3 = color
         title.Position = UDim2.fromOffset(14, 6)
         title.Size = UDim2.new(1, -20, 0, 14)
-        title.TextXAlignment = Left
+        title.Title.TextXAlignment = Enum.TextXAlignment.Left
 
         local msg = Instance.new("TextLabel", frame)
         msg.BackgroundTransparency = 1
@@ -1454,7 +1454,7 @@ do
         msg.TextColor3 = Color3.fromRGB(235,235,235)
         msg.Position = UDim2.fromOffset(14, 22)
         msg.Size = UDim2.new(1, -20, 1, -26)
-        msg.TextXAlignment = Left
+        msg.Title.TextXAlignment = Enum.TextXAlignment.Left
         msg.TextYAlignment = Top
 
         TweenService:Create(frame, TweenInfo.new(0.3), {
