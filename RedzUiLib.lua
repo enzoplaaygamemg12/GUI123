@@ -2263,7 +2263,7 @@ function redzlib:MakeWindow(Configs)
 				BorderSizePixel = 0,
 				CanvasSize = UDim2.new(),
 				ScrollingDirection = "Y",
-				AutomaticCavasSize = "Y",
+				AutomaticCanvasSize = "Y",
 				Active = true
 			}, {
 				Create("UIPadding", {
