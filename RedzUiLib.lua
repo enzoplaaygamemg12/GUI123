@@ -1399,7 +1399,7 @@ do
     local TweenService = game:GetService("TweenService")
     local CoreGui = game:GetService("CoreGui")
 
-    local Stack = 0
+    local NotifyCount = 0
 
     local Types = {
         success = Color3.fromRGB(70, 200, 120),
@@ -1410,65 +1410,85 @@ do
     function redzlib:Notify(cfg)
         cfg = cfg or {}
 
-        local text = tostring(cfg.Text or "Notification")
-        local time = tonumber(cfg.Time) or 3
-        local kind = string.lower(cfg.Type or "success")
+        local Text = tostring(cfg.Text or "Notification")
+        local Time = tonumber(cfg.Time) or 3
+        local Type = string.lower(cfg.Type or "success")
 
-        local color = Types[kind] or Types.success
-        Stack += 1
+        local Color = Types[Type] or Types.success
+        NotifyCount += 1
 
-        local gui = Instance.new("ScreenGui")
-        gui.Name = "RedzNotify_" .. Stack
-        gui.IgnoreGuiInset = true
-        gui.ResetOnSpawn = false
-        gui.Parent = CoreGui
+        local Gui = Instance.new("ScreenGui")
+        Gui.Name = "RedzNotify_" .. NotifyCount
+        Gui.IgnoreGuiInset = true
+        Gui.ResetOnSpawn = false
+        Gui.Parent = CoreGui
 
-        local frame = Instance.new("Frame")
-        frame.Parent = gui
-        frame.Size = UDim2.fromOffset(320, 60)
-        frame.Position = UDim2.new(1, 360, 1, -20 - ((Stack - 1) * 70))
-        frame.AnchorPoint = Vector2.new(1, 1)
-        frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        local Frame = Instance.new("Frame", Gui)
+        Frame.Size = UDim2.fromOffset(320, 64)
+        Frame.Position = UDim2.new(1, 360, 1, -20 - ((NotifyCount - 1) * 74))
+        Frame.AnchorPoint = Vector2.new(1, 1)
+        Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
 
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Color = color
-        stroke.Thickness = 1.5
+        local Stroke = Instance.new("UIStroke", Frame)
+        Stroke.Color = Color
+        Stroke.Thickness = 1.5
 
-        local title = Instance.new("TextLabel", frame)
-        title.BackgroundTransparency = 1
-        title.Text = "Redux Hub"
-        title.Font = Enum.Font.GothamBold
-        title.TextSize = 11
-        title.TextColor3 = color
-        title.TextXAlignment = Enum.TextXAlignment.Left
-        title.Position = UDim2.fromOffset(12, 6)
-        title.Size = UDim2.new(1, -24, 0, 14)
+        local Title = Instance.new("TextLabel", Frame)
+        Title.BackgroundTransparency = 1
+        Title.Text = "Redux Hub Notification"
+        Title.Font = Enum.Font.GothamBold
+        Title.TextSize = 11
+        Title.TextColor3 = Color
+        Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.Position = UDim2.fromOffset(12, 6)
+        Title.Size = UDim2.new(1, -24, 0, 14)
 
-        local msg = Instance.new("TextLabel", frame)
-        msg.BackgroundTransparency = 1
-        msg.TextWrapped = true
-        msg.TextYAlignment = Enum.TextYAlignment.Top
-        msg.TextXAlignment = Enum.TextXAlignment.Left
-        msg.Text = text
-        msg.Font = Enum.Font.Gotham
-        msg.TextSize = 12
-        msg.TextColor3 = Color3.fromRGB(235, 235, 235)
-        msg.Position = UDim2.fromOffset(12, 22)
-        msg.Size = UDim2.new(1, -24, 1, -26)
+        local Msg = Instance.new("TextLabel", Frame)
+        Msg.BackgroundTransparency = 1
+        Msg.TextWrapped = true
+        Msg.TextYAlignment = Enum.TextYAlignment.Top
+        Msg.TextXAlignment = Enum.TextXAlignment.Left
+        Msg.Font = Enum.Font.Gotham
+        Msg.TextSize = 12
+        Msg.TextColor3 = Color3.fromRGB(235, 235, 235)
+        Msg.Text = Text
+        Msg.Position = UDim2.fromOffset(12, 22)
+        Msg.Size = UDim2.new(1, -24, 1, -30)
 
-        TweenService:Create(frame, TweenInfo.new(0.3), {
-            Position = UDim2.new(1, -12, frame.Position.Y.Scale, frame.Position.Y.Offset)
+        -- Barra de tempo
+        local BarBG = Instance.new("Frame", Frame)
+        BarBG.Size = UDim2.new(1, -8, 0, 4)
+        BarBG.Position = UDim2.new(0, 4, 1, -6)
+        BarBG.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+
+        Instance.new("UICorner", BarBG).CornerRadius = UDim.new(1, 0)
+
+        local Bar = Instance.new("Frame", BarBG)
+        Bar.Size = UDim2.new(1, 0, 1, 0)
+        Bar.BackgroundColor3 = Color
+
+        Instance.new("UICorner", Bar).CornerRadius = UDim.new(1, 0)
+
+        -- Entrada
+        TweenService:Create(Frame, TweenInfo.new(0.35), {
+            Position = UDim2.new(1, -12, Frame.Position.Y.Scale, Frame.Position.Y.Offset)
         }):Play()
 
-        task.delay(time, function()
-            TweenService:Create(frame, TweenInfo.new(0.3), {
-                Position = UDim2.new(1, 360, frame.Position.Y.Scale, frame.Position.Y.Offset)
+        -- Timer visual
+        TweenService:Create(Bar, TweenInfo.new(Time, Enum.EasingStyle.Linear), {
+            Size = UDim2.new(0, 0, 1, 0)
+        }):Play()
+
+        task.delay(Time, function()
+            TweenService:Create(Frame, TweenInfo.new(0.3), {
+                Position = UDim2.new(1, 360, Frame.Position.Y.Scale, Frame.Position.Y.Offset)
             }):Play()
+
             task.wait(0.35)
-            gui:Destroy()
-            Stack -= 1
+            Gui:Destroy()
+            NotifyCount -= 1
         end)
     end
 end
