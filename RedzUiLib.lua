@@ -1446,17 +1446,18 @@ do
         title.Position = UDim2.fromOffset(14, 6)
         title.Size = UDim2.new(1, -20, 0, 14)
 
-        local msg = Instance.new("TextLabel", frame)
-        msg.BackgroundTransparency = 1
-        msg.TextWrapped = true
-        msg.Text = text
-        msg.Font = Enum.Font.Gotham
-        msg.TextSize = 12
-        msg.TextColor3 = Color3.fromRGB(235, 235, 235)
-        msg.TextXAlignment = Enum.TextXAlignment.Left
-        msg.TextYAlignment = Enum.TextYAlignment.Top
-        msg.Position = UDim2.fromOffset(14, 22)
-        msg.Size = UDim2.new(1, -20, 1, -26)
+        local MessageLabel = Instance.new("TextLabel")
+        MessageLabel.Parent = frame
+        MessageLabel.BackgroundTransparency = 1
+        MessageLabel.TextWrapped = true
+        MessageLabel.Text = text
+        MessageLabel.Font = Enum.Font.Gotham
+        MessageLabel.TextSize = 12
+        MessageLabel.TextColor3 = Color3.fromRGB(235,235,235)
+        MessageLabel.Position = UDim2.fromOffset(14, 22)
+        MessageLabel.Size = UDim2.new(1, -20, 1, -26)
+        MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+        MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
 
         TweenService:Create(frame, TweenInfo.new(0.3), {
             Position = UDim2.new(1, -12, frame.Position.Y.Scale, frame.Position.Y.Offset)
