@@ -1584,7 +1584,6 @@ function redzlib:MakeWindow(Configs)
 		BackgroundTransparency = 1,
 		ScrollBarImageTransparency = 0.2,
 		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = "Y",
 		ScrollingDirection = "Y",
 		BorderSizePixel = 0,
 		Name = "Tab Scroll"
@@ -1917,7 +1916,6 @@ function redzlib:MakeWindow(Configs)
 			BackgroundTransparency = 1,
 			ScrollBarImageTransparency = 0.2,
 			ScrollBarImageColor3 = Theme["Color Theme"],
-			AutomaticCanvasSize = "Y",
 			ScrollingDirection = "Y",
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.new(),
@@ -2250,7 +2248,6 @@ function redzlib:MakeWindow(Configs)
 				BorderSizePixel = 0,
 				CanvasSize = UDim2.new(),
 				ScrollingDirection = "Y",
-				AutomaticCanvasSize = "Y",
 				Active = true
 			}, {
 				Create("UIPadding", {
