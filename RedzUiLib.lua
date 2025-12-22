@@ -2050,6 +2050,14 @@ function redzlib:MakeWindow(Configs)
             local Transparency = (type(Configs) == "table" and Configs.Transparency) or 0
             local Align = (type(Configs) == "table" and Configs.Align) or "Left"
 
+            -- 🔴 ORDEM CORRETA
+            local Order = 0
+            for _,v in pairs(Container:GetChildren()) do
+                if v:IsA("GuiObject") then
+                    Order += 1
+                end
+            end
+
             local Label = InsertTheme(Create("TextLabel", Container, {
                 Size = UDim2.new(1, -20, 0, 18),
                 BackgroundTransparency = 1,
@@ -2060,10 +2068,10 @@ function redzlib:MakeWindow(Configs)
                 TextSize = Size,
                 TextTransparency = Transparency,
                 Text = Text,
-                TextColor3 = Theme["Color Text"]
+                TextColor3 = Theme["Color Text"],
+                LayoutOrder = Order
             }), "Text")
 
-            -- Ajusta altura automaticamente
             Label.AutomaticSize = Enum.AutomaticSize.Y
 
             local TextObj = {}
