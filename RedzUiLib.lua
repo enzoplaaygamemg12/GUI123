@@ -2040,6 +2040,48 @@ function redzlib:MakeWindow(Configs)
 			end
 			return Paragraph
 		end
+		function Tab:AddText(Configs)
+            local Text =
+                type(Configs) == "string" and Configs
+                or Configs.Text
+                or "Text"
+
+            local Size = (type(Configs) == "table" and Configs.Size) or 13
+            local Transparency = (type(Configs) == "table" and Configs.Transparency) or 0
+            local Align = (type(Configs) == "table" and Configs.Align) or "Left"
+
+            local Label = InsertTheme(Create("TextLabel", Container, {
+                Size = UDim2.new(1, -20, 0, 18),
+                BackgroundTransparency = 1,
+                TextWrapped = true,
+                TextXAlignment = Enum.TextXAlignment[Align],
+                TextYAlignment = Enum.TextYAlignment.Center,
+                Font = Enum.Font.GothamBold,
+                TextSize = Size,
+                TextTransparency = Transparency,
+                Text = Text,
+                TextColor3 = Theme["Color Text"]
+            }), "Text")
+
+            -- Ajusta altura automaticamente
+            Label.AutomaticSize = Enum.AutomaticSize.Y
+
+            local TextObj = {}
+
+            function TextObj:Set(NewText)
+                Label.Text = tostring(NewText)
+            end
+
+            function TextObj:Destroy()
+                Label:Destroy()
+            end
+
+            function TextObj:Visible(...)
+                Funcs:ToggleVisible(Label, ...)
+            end
+
+            return TextObj
+        end
 		function Tab:AddButton(Configs)
 			local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
 			local BDescription = Configs.Desc or Configs.Description or ""
