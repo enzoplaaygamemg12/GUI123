@@ -2075,21 +2075,22 @@ function redzlib:MakeWindow(Configs)
 		        AnchorPoint = Vector2.new(1, 0.5),
 		        BackgroundColor3 = Theme["Color Hub 2"]
 	        }), "Frame")
+				
 	        Make("Corner", ToggleHolder, UDim.new(1, 0))
 
-	        Make("Stroke", ToggleHolder, {
-		        Color = Theme["Color Stroke"],
-		        Thickness = 1.4
-	        })
+	        local Stroke = Instance.new("UIStroke", ToggleHolder)
+            Stroke.Color = Theme["Color Stroke"]
+            Stroke.Thickness = 1.4
 
 	        -- Bola
-	        local ToggleBall = InsertTheme(Create("Frame", ToggleHolder, {
-		        Size = UDim2.new(0, 12, 0, 12),
-		        Position = UDim2.new(0, 3, 0.5, 0),
-		        AnchorPoint = Vector2.new(0, 0.5),
-		        BackgroundColor3 = Theme["Color Stroke"]
-	        }), "Theme")
-	        Make("Corner", ToggleBall, UDim.new(1, 0))
+	        local Ball = Create("Frame", ToggleHolder, {
+	            Size = UDim2.new(0, 14, 0, 14),
+	            Position = UDim2.new(0, 3, 0.5, 0),
+	            AnchorPoint = Vector2.new(0, 0.5),
+	            Ball.BackgroundColor3 = Theme["Color Theme"]
+            })
+
+            Make("Corner", Ball, UDim.new(1, 0))
 
 	        local Busy = false
 	        local function SetToggle(Value)
@@ -2101,33 +2102,11 @@ function redzlib:MakeWindow(Configs)
 		        Funcs:FireCallback(Callback, Default)
 
 		        if Default then
-			        CreateTween({
-				        ToggleBall,
-				        "Position",
-				        UDim2.new(1, -15, 0.5, 0),
-				        0.25
-			        })
-			        CreateTween({
-				        ToggleBall,
-				        "BackgroundColor3",
-				        Theme["Color Theme"],
-				        0.25
-			        })
-		        else
-			        CreateTween({
-				        ToggleBall,
-				        "Position",
-				        UDim2.new(0, 3, 0.5, 0),
-				        0.25
-			        })
-			        CreateTween({
-				        ToggleBall,
-				        "BackgroundColor3",
-				        Theme["Color Stroke"],
-				        0.25
-			        })
-		        end
-
+                    CreateTween({ Ball, "BackgroundColor3", Theme["Color Theme"], 0.25 })
+                else
+                    CreateTween({ Ball, "BackgroundColor3", Theme["Color Stroke"], 0.25 })
+                end
+					
 		        task.delay(0.25, function()
 			        Busy = false
 		        end)
@@ -2314,18 +2293,18 @@ function redzlib:MakeWindow(Configs)
 				end
 				
 				local function UpdateLabel()
-					if MultiSelect then
-						local list = {}
-						for index, Value in pairs(Selected) do
-							if Value then
-								table.insert(list, index)
-							end
-						end
-						ActiveLabel.Text = #list > 0 and table.concat(list, ", ") or "..."
-					else
-						ActiveLabel.Text = tostring(Selected or "...")
-					end
-				end
+                    if MultiSelect then
+                        local list = {}
+                        for index, value in pairs(Selected) do
+                            if value == true then
+                                table.insert(list, tostring(index))
+                            end
+                        end
+                        ActiveLabel.Text = (#list > 0) and table.concat(list, ", ") or "..."
+                    else
+                        ActiveLabel.Text = tostring(Selected or "...")
+                    end
+                end
 				
 				local function UpdateSelected()
 					if MultiSelect then
