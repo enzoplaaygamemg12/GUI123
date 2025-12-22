@@ -2042,6 +2042,41 @@ function redzlib:MakeWindow(Configs)
 			end
 			return Paragraph
 		end
+		function Tab:AddTitleLabel(Text)
+            local Holder = Create("Frame", Container, {
+                Size = UDim2.new(1, 0, 0, 30),
+                BackgroundTransparency = 1,
+                Name = "TitleLabel"
+            })
+
+            local Title = InsertTheme(Create("TextLabel", Holder, {
+                Size = UDim2.new(1, -10, 1, 0),
+                Position = UDim2.new(0, 5, 0, 0),
+                BackgroundTransparency = 1,
+                Font = Enum.Font.GothamBold,
+                TextSize = 15,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextYAlignment = Enum.TextYAlignment.Center,
+                Text = tostring(Text),
+                TextColor3 = Theme["Color Text"]
+            }), "Text")
+
+            local Obj = {}
+
+            function Obj:Set(NewText)
+                Title.Text = tostring(NewText)
+            end
+
+            function Obj:Visible(Bool)
+                Holder.Visible = Bool
+            end
+
+            function Obj:Destroy()
+                Holder:Destroy()
+            end
+
+            return Obj
+        end
 		function Tab:AddButton(Configs)
 			local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
 			local BDescription = Configs.Desc or Configs.Description or ""
