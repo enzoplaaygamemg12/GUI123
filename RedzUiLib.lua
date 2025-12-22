@@ -16,8 +16,8 @@ local redzlib = {
 		        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(22, 22, 22)),
 		        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(18, 18, 18))
 	        }),
-	        ["Color Hub 2"] = Color3.fromRGB(18, 18, 18), -- FUNDO PRETO (tabs e opções)
-	        ["Color Stroke"] = Color3.fromRGB(40, 40, 40),
+	        ["Color Hub 2"] = Color3.fromRGB(15, 15, 15), -- FUNDO PRETO (tabs e opções)
+	        ["Color Stroke"] = Color3.fromRGB(35, 35, 35),
 	        ["Color Theme"] = Color3.fromRGB(220, 70, 70), -- vermelho (estilo Redz)
 	        ["Color Text"] = Color3.fromRGB(240, 240, 240),
 	        ["Color Dark Text"] = Color3.fromRGB(180, 180, 180)
@@ -1473,6 +1473,84 @@ do
         end)
     end
 end
+
+do
+    local TweenService = game:GetService("TweenService")
+    local CoreGui = game:GetService("CoreGui")
+
+    local Stack = 0
+
+    local Types = {
+        success = Color3.fromRGB(70, 200, 120),
+        error   = Color3.fromRGB(220, 70, 70),
+        warning = Color3.fromRGB(230, 200, 70)
+    }
+
+    function redzlib:Notify(cfg)
+        cfg = cfg or {}
+
+        local text = tostring(cfg.Text or "Notification")
+        local time = tonumber(cfg.Time) or 3
+        local kind = string.lower(cfg.Type or "success")
+
+        local color = Types[kind] or Types.success
+        Stack += 1
+
+        local gui = Instance.new("ScreenGui")
+        gui.Name = "RedzNotify_" .. Stack
+        gui.IgnoreGuiInset = true
+        gui.ResetOnSpawn = false
+        gui.Parent = CoreGui
+
+        local frame = Instance.new("Frame")
+        frame.Parent = gui
+        frame.Size = UDim2.fromOffset(320, 60)
+        frame.Position = UDim2.new(1, 360, 1, -20 - ((Stack - 1) * 70))
+        frame.AnchorPoint = Vector2.new(1, 1)
+        frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+        local stroke = Instance.new("UIStroke", frame)
+        stroke.Color = color
+        stroke.Thickness = 1.5
+
+        local title = Instance.new("TextLabel", frame)
+        title.BackgroundTransparency = 1
+        title.Text = "Redux Hub"
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 11
+        title.TextColor3 = color
+        title.TextXAlignment = Enum.TextXAlignment.Left
+        title.Position = UDim2.fromOffset(12, 6)
+        title.Size = UDim2.new(1, -24, 0, 14)
+
+        local msg = Instance.new("TextLabel", frame)
+        msg.BackgroundTransparency = 1
+        msg.TextWrapped = true
+        msg.TextYAlignment = Enum.TextYAlignment.Top
+        msg.TextXAlignment = Enum.TextXAlignment.Left
+        msg.Text = text
+        msg.Font = Enum.Font.Gotham
+        msg.TextSize = 12
+        msg.TextColor3 = Color3.fromRGB(235, 235, 235)
+        msg.Position = UDim2.fromOffset(12, 22)
+        msg.Size = UDim2.new(1, -24, 1, -26)
+
+        TweenService:Create(frame, TweenInfo.new(0.3), {
+            Position = UDim2.new(1, -12, frame.Position.Y.Scale, frame.Position.Y.Offset)
+        }):Play()
+
+        task.delay(time, function()
+            TweenService:Create(frame, TweenInfo.new(0.3), {
+                Position = UDim2.new(1, 360, frame.Position.Y.Scale, frame.Position.Y.Offset)
+            }):Play()
+            task.wait(0.35)
+            gui:Destroy()
+            Stack -= 1
+        end)
+    end
+end
 	
 function redzlib:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
@@ -2083,7 +2161,7 @@ function redzlib:MakeWindow(Configs)
             Stroke.Thickness = 1.4
 
 	        -- Bola
-	        local Ball = Create("Frame", ToggleHolder, {
+	        local Toggle = Create("Frame", ToggleHolder, {
 	            Size = UDim2.new(0, 14, 0, 14),
 	            Position = UDim2.new(0, 3, 0.5, 0),
 	            AnchorPoint = Vector2.new(0, 0.5),
@@ -2102,9 +2180,11 @@ function redzlib:MakeWindow(Configs)
 		        Funcs:FireCallback(Callback, Default)
 
 		        if Default then
-                    CreateTween({ Ball, "BackgroundColor3", Theme["Color Theme"], 0.25 })
+                    CreateTween({ToggleHolder, "BackgroundColor3", Color3.fromRGB(70,200,120), 0.25})
+                    CreateTween({Toggle, "BackgroundColor3", Color3.fromRGB(70,200,120), 0.25})
                 else
-                    CreateTween({ Ball, "BackgroundColor3", Theme["Color Stroke"], 0.25 })
+                    CreateTween({ToggleHolder, "BackgroundColor3", Color3.fromRGB(220,70,70), 0.25})
+                    CreateTween({Toggle, "BackgroundColor3", Color3.fromRGB(160,160,160), 0.25})
                 end
 					
 		        task.delay(0.25, function()
@@ -2143,7 +2223,7 @@ function redzlib:MakeWindow(Configs)
 			local DOptions = Configs[2] or Configs.Options or {}
 			local OpDefault = Configs[3] or Configs.Default or {}
 			local Flag = Configs[5] or Configs.Flag or false
-			local DMultiSelect = Configs.MultiSelect or false
+			local DMultiSelect = Configs.MultiSelection or Configs.MultiSelect or false
 			local Callback = Funcs:GetCallback(Configs, 4)
 			
 			local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
@@ -2288,9 +2368,14 @@ function redzlib:MakeWindow(Configs)
 				end
 				
 				local function CallbackSelected()
-					SetFlag(Flag, MultiSelect and Selected or tostring(Selected))
-					Funcs:FireCallback(Callback, Selected)
-				end
+                    if MultiSelect then
+                        SetFlag(Flag, Selected)
+                        Funcs:FireCallback(Callback, Selected)
+                    else
+                        SetFlag(Flag, Selected)
+                        Funcs:FireCallback(Callback, { Selected })
+                    end
+                end
 				
 				local function UpdateLabel()
                     if MultiSelect then
@@ -2358,6 +2443,7 @@ function redzlib:MakeWindow(Configs)
 						local Stats = Selected[Name]
 						Selected[Name] = Stats or false
 						Options[Name].Stats = Stats
+						task.defer(UpdateSelected)
 					end
 					
 					local Button = Make("Button", ScrollFrame, {
