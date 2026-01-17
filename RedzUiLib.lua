@@ -409,6 +409,7 @@ local redzlib = {
 			["film"] = "rbxassetid://10723374981",
 			["filter"] = "rbxassetid://10723375128",
 			["fingerprint"] = "rbxassetid://10723375250",
+			["fish"] = "rbxassetid://7539983780",
 			["flag"] = "rbxassetid://10723375890",
 			["flagoff"] = "rbxassetid://10723375443",
 			["flagtriangleleft"] = "rbxassetid://10723375608",
