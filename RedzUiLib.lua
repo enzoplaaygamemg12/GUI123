@@ -579,6 +579,7 @@ local redzlib = {
 			["mailwarning"] = "rbxassetid://10734885015",
 			["mailx"] = "rbxassetid://10734885247",
 			["mails"] = "rbxassetid://10734885614",
+			["main"] = "rbxassetid://7539983780"	
 			["map"] = "rbxassetid://10734886202",
 			["mappin"] = "rbxassetid://10734886004",
 			["mappinoff"] = "rbxassetid://10734885803",
