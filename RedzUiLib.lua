@@ -1396,103 +1396,116 @@ function redzlib:SetTheme(NewTheme)
 	end)
 end
 
-do
-    local TweenService = game:GetService("TweenService")
-    local CoreGui = game:GetService("CoreGui")
-
-    local NotifyCount = 0
-
-    local Types = {
-        success = Color3.fromRGB(70, 200, 120),
-        error   = Color3.fromRGB(220, 70, 70),
-        warning = Color3.fromRGB(230, 200, 70)
-    }
-
-    function redzlib:Notify(cfg)
-        cfg = cfg or {}
-
-        local Text = tostring(cfg.Text or "Notification")
-        local Time = tonumber(cfg.Time) or 3
-        local Type = string.lower(cfg.Type or "success")
-
-        local Color = Types[Type] or Types.success
-        NotifyCount += 1
-
-        local Gui = Instance.new("ScreenGui")
-        Gui.Name = "RedzNotify_" .. NotifyCount
-        Gui.IgnoreGuiInset = true
-        Gui.ResetOnSpawn = false
-        Gui.Parent = CoreGui
-
-        local Frame = Instance.new("Frame", Gui)
-        Frame.Size = UDim2.fromOffset(320, 64)
-        Frame.Position = UDim2.new(1, 360, 1, -20 - ((NotifyCount - 1) * 74))
-        Frame.AnchorPoint = Vector2.new(1, 1)
-        Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-
-        Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
-
-        local Stroke = Instance.new("UIStroke", Frame)
-        Stroke.Color = Color
-        Stroke.Thickness = 1.5
-
-        local Title = Instance.new("TextLabel", Frame)
-        Title.BackgroundTransparency = 1
-        Title.Text = "Redux Hub Notification"
-        Title.Font = Enum.Font.GothamBold
-        Title.TextSize = 11
-        Title.TextColor3 = Color
-        Title.TextXAlignment = Enum.TextXAlignment.Left
-        Title.Position = UDim2.fromOffset(12, 6)
-        Title.Size = UDim2.new(1, -24, 0, 14)
-
-        local Msg = Instance.new("TextLabel", Frame)
-        Msg.BackgroundTransparency = 1
-        Msg.TextWrapped = true
-        Msg.TextYAlignment = Enum.TextYAlignment.Top
-        Msg.TextXAlignment = Enum.TextXAlignment.Left
-        Msg.Font = Enum.Font.Gotham
-        Msg.TextSize = 12
-        Msg.TextColor3 = Color3.fromRGB(235, 235, 235)
-        Msg.Text = Text
-        Msg.Position = UDim2.fromOffset(12, 22)
-        Msg.Size = UDim2.new(1, -24, 1, -30)
-
-        -- Barra de tempo
-        local BarBG = Instance.new("Frame", Frame)
-        BarBG.Size = UDim2.new(1, -8, 0, 4)
-        BarBG.Position = UDim2.new(0, 4, 1, -6)
-        BarBG.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-
-        Instance.new("UICorner", BarBG).CornerRadius = UDim.new(1, 0)
-
-        local Bar = Instance.new("Frame", BarBG)
-        Bar.Size = UDim2.new(1, 0, 1, 0)
-        Bar.BackgroundColor3 = Color
-
-        Instance.new("UICorner", Bar).CornerRadius = UDim.new(1, 0)
-
-        -- Entrada
-        TweenService:Create(Frame, TweenInfo.new(0.35), {
-            Position = UDim2.new(1, -12, Frame.Position.Y.Scale, Frame.Position.Y.Offset)
-        }):Play()
-
-        -- Timer visual
-        TweenService:Create(Bar, TweenInfo.new(Time, Enum.EasingStyle.Linear), {
-            Size = UDim2.new(0, 0, 1, 0)
-        }):Play()
-
-        task.delay(Time, function()
-            TweenService:Create(Frame, TweenInfo.new(0.3), {
-                Position = UDim2.new(1, 360, Frame.Position.Y.Scale, Frame.Position.Y.Offset)
-            }):Play()
-
-            task.wait(0.35)
-            Gui:Destroy()
-            NotifyCount -= 1
-        end)
-    end
-end
+function redzLib:MakeNotify(Configs)
+    local NTitle = Configs[1] or Configs.Title or "Notification"
+    local NText = Configs[2] or Configs.Text or "This is a notification"
+    local NTime = Configs[3] or Configs.Time or 5
+    
+    local NFrame = Create("Frame", NotifyContainer, {
+      Size = UDim2.new(2, 0, 0, 0),
+      BackgroundTransparency = 1,
+      AutomaticSize = "Y",
+      Name = "Title"
+    })
+    
+    local RealNFrame = insertTheme(Create("Frame", NFrame, {
+      Size = UDim2.new(0.5, -25),
+      BackgroundColor3 = Theme["Color Hub 1"],
+      BackgroundTransparency = Theme["Transparency"],
+      Position = UDim2.fromOffset(1),
+      AutomaticSize = "Y",
+      Active = true
+    }, {
+      Corner(),
+      insertTheme(Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 15),
+        Font = Theme["Font"][2],
+        BackgroundTransparency = 1,
+        Text = NTitle,
+        TextSize = 12,
+        Position = UDim2.new(0, 15, 0, 5),
+        TextXAlignment = "Left",
+        TextColor3 = Theme["Color Text"]
+      }), "Text"),
+      insertTheme(Create("TextLabel", {
+        Size = UDim2.new(1, -25, 0, 0),
+        Position = UDim2.new(0, 15, 0, 25),
+        TextSize = 10,
+        TextColor3 = Theme["Color Dark Text"],
+        TextXAlignment = "Left",
+        TextYAlignment = "Top",
+        AutomaticSize = "Y",
+        Text = NText,
+        Font = Theme["Font"][3],
+        BackgroundTransparency = 1,
+        AutomaticSize = Enum.AutomaticSize.Y,
+        TextWrapped = true
+      }, {
+        Create("Frame", {
+          Size = UDim2.fromOffset(0, 8),
+          Position = UDim2.fromScale(0, 1),
+          BackgroundTransparency = 1
+        })
+      }), "DarkText")
+    }), "Frames")
+    
+    local CloseNotify = Create("TextButton", RealNFrame, {
+      Text = "X",
+      Font = Enum.Font.FredokaOne,
+      TextSize = 15,
+      BackgroundTransparency = 1,
+      TextColor3 = Color3.fromRGB(200, 200, 200),
+      Position = UDim2.new(1, -5, 0, 2),
+      AnchorPoint = Vector2.new(1, 0),
+      Size = UDim2.fromOffset(15, 15)
+    })
+    
+    local NotifyTimer = insertTheme(Create("Frame", RealNFrame, {
+      Size = UDim2.new(1, 0, 0, 1.5),
+      BackgroundColor3 = Theme["Color Stroke"],
+      Position = UDim2.new(0, 2, 0, 20),
+      BorderSizePixel = 0
+    }, {
+      Corner(),
+      Create("Frame", {
+        Size = UDim2.new(0, 0, 0, 5),
+        Position = UDim2.new(0, 0, 1, 5),
+        BackgroundTransparency = 1
+      })
+    }), "Stroke")
+    
+    local NotifyFinish, destroy
+    
+    CloseNotify.Activated:Connect(function()
+      if not destroy and not NotifyFinish and NFrame then
+        NotifyFinish = true
+        CreateTween({RealNFrame, "Position", UDim2.new(0, -50), 0.15, true})
+        CreateTween({RealNFrame, "Position", UDim2.new(1), 0.50, true})
+        NFrame:Destroy()
+        destroy = true
+      end
+    end)
+    
+    task.spawn(function()
+      CreateTween({RealNFrame, "Position", UDim2.new(0, -50), 0.5, true})
+      CreateTween({RealNFrame, "Position", UDim2.new(0, 0), 0.15, true})
+      CreateTween({NotifyTimer, "Size", UDim2.new(0, 0, 0, 1.5), NTime, true})
+      if not destroy and not NotifyFinish and NFrame then
+        NotifyFinish = true
+        CreateTween({RealNFrame, "Position", UDim2.new(0, -50), 0.15, true})
+        CreateTween({RealNFrame, "Position", UDim2.new(1), 0.50, true})
+        NFrame:Destroy()
+        destroy = true
+      end
+    end)
+    
+    local Notify = {}
+    function Notify:Destroy()destroy = true NFrame:Destroy()end
+    function Notify:Visible(Bool)NFrame.Visible = Bool end
+    function Notify:Wait()repeat task.wait()until not NFrame or NotifyFinish or destroy end
+    return Notify
+  end
+end)
 
 function redzlib:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
