@@ -2774,37 +2774,51 @@ function redzlib:MakeWindow(Configs)
 		local NText  = Configs[2] or Configs.Text  or "This is a notification"
 		local NTime  = Configs[3] or Configs.Time  or 5
 
+		-- NFrame ocupa largura dupla (igual ao redz original),
+		-- assim o RealNFrame pode deslizar de fora pra dentro sem clipar o container
 		local NFrame = Create("Frame", NotifyContainer, {
-			Size = UDim2.new(0, 260, 0, 0),
+			Size = UDim2.new(2, 0, 0, 0),
 			BackgroundTransparency = 1,
 			AutomaticSize = Enum.AutomaticSize.Y,
-			Name = "NotifyFrame"
+			Name = "Title"
 		})
 
+		-- RealNFrame começa fora da tela pela direita (fromOffset(1) = X offset 1 escala)
 		local RealNFrame = InsertTheme(Create("Frame", NFrame, {
-			Size = UDim2.new(1, 0, 0, 0),
-			BackgroundColor3 = Theme["Color Hub 2"],
-			BackgroundTransparency = Theme["Transparency"] or 0.03,
-			Position = UDim2.fromScale(1),
+			Size = UDim2.new(0.5, -25),
+			BackgroundColor3 = Theme["Color Hub 1"] and Theme["Color Hub 2"] or Theme["Color Hub 2"],
+			BackgroundTransparency = 0.03,
+			Position = UDim2.fromOffset(1),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Active = true
 		}), "Frame")
 		Make("Corner", RealNFrame)
+		Make("Gradient", RealNFrame, { Rotation = 45 })
 
+		-- Linha de accent (Color Theme) no topo esquerdo
+		InsertTheme(Create("Frame", RealNFrame, {
+			Size = UDim2.new(0, 3, 0, 28),
+			Position = UDim2.fromOffset(0, 0),
+			BackgroundColor3 = Theme["Color Theme"],
+			BorderSizePixel = 0
+		}), "Theme")
+
+		-- Título
 		InsertTheme(Create("TextLabel", RealNFrame, {
-			Size = UDim2.new(1, -40, 0, 15),
+			Size = UDim2.new(1, -25, 0, 15),
 			Font = Enum.Font.GothamBold,
 			BackgroundTransparency = 1,
 			Text = NTitle,
 			TextSize = 12,
-			Position = UDim2.new(0, 15, 0, 8),
+			Position = UDim2.new(0, 15, 0, 5),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = Theme["Color Text"]
 		}), "Text")
 
+		-- Texto da notificação
 		InsertTheme(Create("TextLabel", RealNFrame, {
-			Size = UDim2.new(1, -30, 0, 0),
-			Position = UDim2.new(0, 15, 0, 28),
+			Size = UDim2.new(1, -25, 0, 0),
+			Position = UDim2.new(0, 15, 0, 25),
 			TextSize = 10,
 			TextColor3 = Theme["Color Dark Text"],
 			TextXAlignment = Enum.TextXAlignment.Left,
@@ -2814,59 +2828,73 @@ function redzlib:MakeWindow(Configs)
 			Font = Enum.Font.Gotham,
 			BackgroundTransparency = 1,
 			TextWrapped = true
+		}, {
+			-- padding inferior igual ao original
+			Create("Frame", {
+				Size = UDim2.fromOffset(0, 8),
+				Position = UDim2.fromScale(0, 1),
+				BackgroundTransparency = 1
+			})
 		}), "DarkText")
 
-		-- Spacer bottom
-		Create("Frame", RealNFrame, {
-			Size = UDim2.fromOffset(0, 10),
-			BackgroundTransparency = 1
-		})
-
+		-- Botão fechar (X) — igual ao original
 		local CloseNotify = Create("TextButton", RealNFrame, {
-			Text = "✕",
-			Font = Enum.Font.GothamBold,
-			TextSize = 12,
+			Text = "X",
+			Font = Enum.Font.FredokaOne,
+			TextSize = 15,
 			BackgroundTransparency = 1,
 			TextColor3 = Color3.fromRGB(200, 200, 200),
-			Position = UDim2.new(1, -5, 0, 5),
+			Position = UDim2.new(1, -5, 0, 2),
 			AnchorPoint = Vector2.new(1, 0),
 			Size = UDim2.fromOffset(15, 15)
 		})
 
+		-- Barra de timer — posição e tamanho idênticos ao original
 		local NotifyTimer = InsertTheme(Create("Frame", RealNFrame, {
-			Size = UDim2.new(1, 0, 0, 2),
-			BackgroundColor3 = Theme["Color Theme"],
-			Position = UDim2.new(0, 0, 0, 24),
+			Size = UDim2.new(1, 0, 0, 1.5),
+			BackgroundColor3 = Theme["Color Stroke"],
+			Position = UDim2.new(0, 2, 0, 20),
 			BorderSizePixel = 0
-		}), "Theme")
-		Make("Corner", NotifyTimer)
+		}, {
+			Make("Corner", nil),
+			Create("Frame", {
+				Size = UDim2.new(0, 0, 0, 5),
+				Position = UDim2.new(0, 0, 1, 5),
+				BackgroundTransparency = 1
+			})
+		}), "Stroke")
 
-		local destroyed, finished = false, false
+		local NotifyFinish, destroy
 
-		local function DestroyNotify()
-			if destroyed then return end
-			destroyed = true
-			finished = true
-			CreateTween({RealNFrame, "Position", UDim2.new(1.1, 0, 0, 0), 0.3, true})
-			task.wait(0.35)
-			if NFrame and NFrame.Parent then NFrame:Destroy() end
-		end
-
-		CloseNotify.Activated:Connect(DestroyNotify)
+		CloseNotify.Activated:Connect(function()
+			if not destroy and not NotifyFinish and NFrame then
+				NotifyFinish = true
+				CreateTween({RealNFrame, "Position", UDim2.new(0, -50), 0.15, true})
+				CreateTween({RealNFrame, "Position", UDim2.new(1), 0.50, true})
+				NFrame:Destroy()
+				destroy = true
+			end
+		end)
 
 		task.spawn(function()
-			-- Slide in
-			CreateTween({RealNFrame, "Position", UDim2.fromScale(0), 0.3, true})
-			-- Timer countdown
-			CreateTween({NotifyTimer, "Size", UDim2.new(0, 0, 0, 2), NTime, true})
-			task.wait(NTime)
-			DestroyNotify()
+			-- Bounce de entrada: vem da direita, passa um pouco pra esquerda e encaixa
+			CreateTween({RealNFrame, "Position", UDim2.new(0, -50), 0.5,  true})
+			CreateTween({RealNFrame, "Position", UDim2.new(0, 0),   0.15, true})
+			-- Countdown da barra
+			CreateTween({NotifyTimer, "Size", UDim2.new(0, 0, 0, 1.5), NTime, true})
+			if not destroy and not NotifyFinish and NFrame then
+				NotifyFinish = true
+				CreateTween({RealNFrame, "Position", UDim2.new(0, -50), 0.15, true})
+				CreateTween({RealNFrame, "Position", UDim2.new(1),      0.50, true})
+				NFrame:Destroy()
+				destroy = true
+			end
 		end)
 
 		local Notify = {}
-		function Notify:Destroy() DestroyNotify() end
+		function Notify:Destroy() destroy = true if NFrame then NFrame:Destroy() end end
 		function Notify:Visible(Bool) NFrame.Visible = Bool end
-		function Notify:Wait() repeat task.wait() until destroyed or finished end
+		function Notify:Wait() repeat task.wait() until not NFrame or NotifyFinish or destroy end
 		return Notify
 	end
 
